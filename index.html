@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>네이버 지도 - 건대입구역 맛집 탐색</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- Google Fonts & Icon -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* 기본 테마 및 레이아웃 설정 */
+    :root {
+      --naver-green: #03C75A;
+      --naver-green-dark: #02b34f;
+      --naver-green-light: #e8f9f0;
+      --bg-gray: #f4f6fa;
+      --text-main: #1e1e23;
+      --text-sub: #707077;
+      --text-muted: #9898a0;
+      --border-light: #ebebeb;
+      --border-focus: #b5b5b5;
+      --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      --modal-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+      --font-main: 'Noto Sans KR', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: #1a1a24;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* 모바일 디바이스 목업 프레임 */
+    .phone-container {
+      width: 100%;
+      max-width: 430px;
+      height: 900px;
+      max-height: 95vh;
+      background-color: #fff;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border-radius: 40px;
+      border: 8px solid #2d2d3a;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        background-color: #fff;
+      }
+      .phone-container {
+        max-width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        border: none;
+      }
+    }
+
+    /* 노치/상단바 목업 */
+    .phone-header-bar {
+      height: 36px;
+      background-color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #000;
+      z-index: 1000;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .phone-header-bar .status-icons i {
+      margin-left: 5px;
+    }
+
+    /* 메인 앱 영역 */
+    .app-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      background-color: var(--bg-gray);
+    }
+
+    /* 네이버 검색바 영역 */
+    .search-section {
+      background-color: #fff;
+      padding: 12px 16px 8px 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      z-index: 110;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: #fff;
+      border: 2px solid var(--naver-green);
+      border-radius: 8px;
+      height: 46px;
+      padding: 0 12px;
+      gap: 10px;
+    }
+
+    .search-bar .back-btn {
+      color: var(--naver-green);
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .search-input {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      border: none;
+      outline: none;
+      background: transparent;
+      pointer-events: none; /* 단순 목업용으로 비활성화 */
+    }
+
+    .search-icons {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--naver-green);
+      font-size: 16px;
+    }
+
+    /* 필터 프리셋 칩 영역 */
+    .filter-section {
+      background-color: #fff;
+      padding: 4px 16px 12px 16px;
+      z-index: 110;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .preset-chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 4px;
+    }
+
+    .preset-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1px solid #e0e0e6;
+      background-color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      color: #4e4e55;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .chip.active {
+      background-color: var(--naver-green-light);
+      border-color: var(--naver-green);
+      color: var(--naver-green);
+      font-weight: 700;
+    }
+
+    .chip-add {
+      background-color: #f5f5f7;
+      border-color: #e5e5eb;
+    }
+
+    .chip-add i {
+      font-size: 11px;
+      transition: transform 0.2s;
+    }
+
+    .chip-add.active i {
+      transform: rotate(45deg);
+    }
+
+    /* 확장 태그 풀 */
+    .expanded-tags-container {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+      background-color: #f9fafc;
+      border-bottom: 0 solid var(--border-light);
+    }
+
+    .expanded-tags-container.open {
+      max-height: 120px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .tags-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag-item {
+      padding: 6px 12px;
+      border-radius: 16px;
+      background-color: #fff;
+      border: 1px solid #e2e2eb;
+      font-size: 12px;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tag-item.active {
+      background-color: #eaeefc;
+      border-color: #4a72e6;
+      color: #4a72e6;
+      font-weight: 600;
+    }
+
+    /* 지도 영역 */
+    .map-container {
+      flex: 1;
+      position: relative;
+      z-index: 10;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 말풍선 형태의 커스텀 DivIcon */
+    .custom-marker {
+      background: none;
+      border: none;
+    }
+
+    .marker-bubble {
+      position: relative;
+      background-color: #fff;
+      border: 2px solid var(--naver-green);
+      color: var(--text-main);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -100%);
+      width: auto;
+      min-width: 50px;
+      max-width: 140px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .marker-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px 6px 0;
+      border-style: solid;
+      border-color: var(--naver-green) transparent;
+      display: block;
+      width: 0;
+    }
+
+    .marker-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 5px 5px 0;
+      border-style: solid;
+      border-color: #fff transparent;
+      display: block;
+      width: 0;
+      z-index: 1;
+    }
+
+    /* 선택된 마커 스타일 */
+    .custom-marker.selected-pin .marker-bubble {
+      background-color: #e11d48;
+      border-color: #be123c;
+      color: #fff;
+      z-index: 999;
+      transform: translate(-50%, -100%) scale(1.1);
+    }
+
+    .custom-marker.selected-pin .marker-bubble::after {
+      border-color: #be123c transparent;
+    }
+
+    .custom-marker.selected-pin .marker-bubble::before {
+      border-color: #e11d48 transparent;
+    }
+
+    /* 하단 바텀시트 */
+    .bottom-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 380px;
+      background-color: #fff;
+      border-radius: 20px 20px 0 0;
+      box-shadow: var(--modal-shadow);
+      z-index: 105;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      /* 기본 상태: 헤더와 핸들만 보이도록 아래로 내림 (접힌 상태) */
+      transform: translateY(calc(100% - 64px));
+    }
+
+    /* 펼쳐진 상태 */
+    .bottom-sheet.expanded {
+      transform: translateY(0);
+    }
+
+    /* 드래그 핸들 */
+    .sheet-handle-bar {
+      height: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background-color: #e0e0e6;
+      border-radius: 2px;
+    }
+
+    /* 바텀시트 헤더 */
+    .sheet-header {
+      padding: 0 20px 8px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer; /* 헤더 영역도 클릭 가능하게 변경 */
+    }
+
+    .sheet-header-title {
+      font-size: 14px;
+      color: var(--text-sub);
+      font-weight: 500;
+    }
+
+    .sheet-header-title span {
+      color: var(--naver-green);
+      font-weight: 700;
+    }
+
+    /* 바텀시트 장소 리스트 */
+    .places-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 16px 20px 16px;
+    }
+
+    /* 장소 카드 */
+    .place-card {
+      display: flex;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+      gap: 16px;
+      transition: background-color 0.3s, padding 0.3s;
+      border-radius: 8px;
+    }
+
+    .place-card:last-child {
+      border-bottom: none;
+    }
+
+    .place-card.highlighted {
+      animation: highlightPulse 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    @keyframes highlightPulse {
+      0% {
+        background-color: rgba(3, 199, 90, 0.15);
+      }
+      100% {
+        background-color: transparent;
+      }
+    }
+
+    .place-img-wrapper {
+      width: 88px;
+      height: 88px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #eef1f6;
+    }
+
+    .place-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .place-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .place-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .place-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .place-category {
+      font-size: 12px;
+      color: var(--text-sub);
+      font-weight: 500;
+    }
+
+    .place-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .tag-badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background-color: #f0f0f4;
+      color: #55555e;
+      font-weight: 500;
+    }
+
+    /* 0건 결과 컨테이너 */
+    .empty-result-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 240px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .empty-icon {
+      font-size: 40px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .empty-message {
+      font-size: 14px;
+      color: var(--text-sub);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .reset-btn {
+      padding: 10px 20px;
+      border-radius: 20px;
+      background-color: var(--naver-green);
+      color: #fff;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(3, 199, 90, 0.2);
+      transition: all 0.2s;
+    }
+
+    .reset-btn:hover {
+      background-color: var(--naver-green-dark);
+    }
+
+    /* 상세보기 모달 */
+    .detail-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #fff;
+      z-index: 300; /* 상단바보다 위에 노출 */
+      display: none; /* 기본 상태 완전 숨김 */
+      flex-direction: column;
+    }
+
+    .detail-modal.open {
+      display: flex; /* 열릴 때만 노출 */
+      animation: slideUp 0.25s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .detail-header {
+      position: relative;
+      height: 200px;
+      background-color: #eef1f6;
+    }
+
+    .detail-header-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .close-modal-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 16px;
+      z-index: 10;
+      transition: background-color 0.2s;
+    }
+
+    .close-modal-btn:hover {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .detail-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px;
+    }
+
+    .detail-meta {
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 20px;
+    }
+
+    .detail-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+
+    .detail-name {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .detail-category {
+      font-size: 13px;
+      color: var(--text-sub);
+      font-weight: 500;
+    }
+
+    .detail-info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .detail-info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 14px;
+      color: #3f3f46;
+      line-height: 1.4;
+    }
+
+    .detail-info-item i {
+      width: 16px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .detail-options-section {
+      margin-bottom: 24px;
+    }
+
+    .detail-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .detail-options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .detail-option-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      background-color: var(--bg-gray);
+      color: var(--text-sub);
+    }
+
+    .detail-option-pill.active {
+      background-color: var(--naver-green-light);
+      color: var(--naver-green);
+      font-weight: 600;
+    }
+
+    .detail-option-pill i {
+      font-size: 12px;
+    }
+
+    .detail-footer-btn-container {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-light);
+      background-color: #fff;
+      display: flex;
+      gap: 12px;
+    }
+
+    .select-place-btn {
+      flex: 1;
+      height: 52px;
+      border-radius: 8px;
+      background-color: var(--naver-green);
+      color: #fff;
+      border: none;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(3, 199, 90, 0.25);
+      transition: background-color 0.2s;
+    }
+
+    .select-place-btn:hover {
+      background-color: var(--naver-green-dark);
+    }
+
+    .cancel-place-btn {
+      width: 100px;
+      height: 52px;
+      border-radius: 8px;
+      background-color: #f4f4f5;
+      color: #4e4e55;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background-color 0.2s;
+    }
+
+    .cancel-place-btn:hover {
+      background-color: #e4e4e7;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 모바일 디바이스 프레임 -->
+  <div class="phone-container">
+    
+    <!-- 상단바 목업 -->
+    <div class="phone-header-bar">
+      <div class="time-status">12:30</div>
+      <div class="status-icons">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-three-quarters"></i>
+      </div>
+    </div>
+    
+    <!-- 메인 앱 바디 -->
+    <div class="app-body">
+      
+      <!-- 상단 검색창 -->
+      <section class="search-section">
+        <div class="search-bar">
+          <i class="fa-solid fa-arrow-left back-btn"></i>
+          <input type="text" class="search-input" value="건대입구역 맛집">
+          <div class="search-icons">
+            <i class="fa-solid fa-xmark" style="color:#a8a8af; font-size:14px;"></i>
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </div>
+      </section>
+
+      <!-- 상황 프리셋 칩 -->
+      <section class="filter-section">
+        <div class="preset-chips">
+          <button class="chip" id="preset-family" data-preset="family">👨‍👩‍👧 가족모임</button>
+          <button class="chip" id="preset-friends" data-preset="friends">👥 친구모임</button>
+          <button class="chip" id="preset-dinner" data-preset="dinner">💼 회식</button>
+          <button class="chip chip-add" id="toggle-tags-btn"><i class="fa-solid fa-plus"></i> 조건 추가</button>
+        </div>
+      </section>
+
+      <!-- 확장 태그 풀 -->
+      <section class="expanded-tags-container" id="expanded-tags-panel">
+        <div class="tags-grid" id="tags-grid-container">
+          <!-- JS를 통해 가나다순으로 채워짐 -->
+        </div>
+      </section>
+
+      <!-- 지도 영역 -->
+      <div class="map-container">
+        <div id="map"></div>
+      </div>
+
+      <!-- 하단 바텀시트 -->
+      <div class="bottom-sheet" id="bottom-sheet">
+        <div class="sheet-handle-bar" id="sheet-handle">
+          <div class="sheet-handle"></div>
+        </div>
+        <div class="sheet-header">
+          <div class="sheet-header-title">검색결과 <span id="match-count">0</span>건</div>
+        </div>
+        <div class="places-list" id="places-list-container">
+          <!-- 식당 카드들이 동적으로 추가됨 -->
+        </div>
+      </div>
+
+      <!-- 상세보기 모달 -->
+      <div class="detail-modal" id="detail-modal">
+        <div class="detail-header">
+          <img class="detail-header-img" id="detail-img" src="" alt="식당 전경">
+          <button class="close-modal-btn" id="close-modal-btn">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="detail-content">
+          <div class="detail-meta">
+            <div class="detail-title-row">
+              <h2 class="detail-name" id="detail-name">식당 이름</h2>
+              <span class="detail-category" id="detail-category">일식</span>
+            </div>
+            
+            <div class="detail-info-list">
+              <div class="detail-info-item">
+                <i class="fa-solid fa-location-dot"></i>
+                <span id="detail-address">주소 정보가 로드되는 중입니다.</span>
+              </div>
+              <div class="detail-info-item">
+                <i class="fa-solid fa-phone"></i>
+                <span id="detail-phone">전화번호 정보가 로드되는 중입니다.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-options-section">
+            <h3 class="detail-section-title">편의 및 상세 조건</h3>
+            <div class="detail-options-grid" id="detail-options-grid">
+              <!-- 편의 옵션 태그 일체가 렌더링됨 -->
+            </div>
+          </div>
+        </div>
+        
+        <div class="detail-footer-btn-container">
+          <button class="cancel-place-btn" id="cancel-place-btn">닫기</button>
+          <button class="select-place-btn" id="select-place-btn">이 장소로 선택</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- JavaScript 핵심 로직 -->
+  <script>
+    // ----------------------------------------------------
+    // 0. 행동 로깅 매니저 객체 선언
+    // ----------------------------------------------------
+    const logData = {
+      sessionId: "session_" + Date.now(),
+      taskStartTime: new Date().toISOString(),
+      taskEndTime: "",
+      totalDurationSec: 0.0,
+      selectedPreset: "없음",
+      tagToggleLogs: [],
+      zeroResultTriggered: false,
+      zeroResultRecoveryAction: "", // "relaxed_filter", "reset_clicked", "abandoned"
+      detailViewCount: 0,
+      detailStayDurationSec: 0.0,
+      finalSelectedPlace: ""
+    };
+
+    // 상세 모달 체류 시간 추적을 위한 변수
+    let detailOpenTime = null;
+
+    // ----------------------------------------------------
+    // 1. 태그 메타데이터 및 한글 정렬 정의
+    // ----------------------------------------------------
+    // 태그 키와 매핑되는 한글명 정의
+    const tagMeta = {
+      parking: "주차가능",
+      group_seats: "단체석",
+      high_chair: "유아의자",
+      room: "개별룸",
+      reservation: "예약가능",
+      conversation: "대화하기좋은",
+      comfortable_seat: "편한좌석",
+      pet_friendly: "반려동물동반",
+      liquor_available: "주류/콜키지",
+      late_night_early: "심야/이른영업"
+    };
+
+    // 프리셋별 자동 활성화 태그 정의 (유저 요청 기준)
+    const presetConfig = {
+      family: ["parking", "group_seats", "high_chair"],
+      friends: ["conversation", "comfortable_seat"],
+      dinner: ["group_seats", "room", "reservation"]
+    };
+
+    // 확장 태그 풀 정의
+    const extendedTagKeys = ["pet_friendly", "liquor_available", "late_night_early", "parking", "room"];
+    
+    // 확장 태그 풀 한글 가나다순 정렬 배치
+    // 한글 기준: 개별룸(room) -> 반려동물동반(pet_friendly) -> 심야/이른영업(late_night_early) -> 주류/콜키지(liquor_available) -> 주차가능(parking)
+    const sortedExtendedTagKeys = [...extendedTagKeys].sort((a, b) => {
+      return tagMeta[a].localeCompare(tagMeta[b], 'ko');
+    });
+
+    // ----------------------------------------------------
+    // 2. 상태 관리 변수
+    // ----------------------------------------------------
+    const placesData = [
+      {
+        "name": "Makke",
+        "category": "생선회",
+        "address": "서울 광진구 구의동",
+        "phone": "0507-1373-1532",
+        "latitude": 37.539275,
+        "longitude": 127.089557,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": false,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": false
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20240911_128%2F1726055209496FQPs2_JPEG%2FIMG_9327.jpeg"
+      },
+      {
+        "name": "꽃삼뚜껑 구의역점",
+        "category": "육류,고기요리",
+        "address": "서울 광진구 구의동",
+        "phone": "0507-1473-9245",
+        "latitude": 37.538514,
+        "longitude": 127.085354,
+        "parsed_options": {
+          "parking": true,
+          "high_chair": true,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": false,
+          "comfortable_seat": true,
+          "pet_friendly": true,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20251021_204%2F1761024565834wMjrt_GIF%2FAdobe_Express_-_Adobe_Express_-_%25C0%25BD%25BD%25C4%25BF%25B5%25BB%25F31.gif"
+      },
+      {
+        "name": "신선술집 도원 건대 본점",
+        "category": "요리주점",
+        "address": "서울 광진구 화양동",
+        "phone": "0507-1456-0826",
+        "latitude": 37.542283,
+        "longitude": 127.070051,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": true,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fnaverbooking-phinf.pstatic.net%2F20260619_246%2F1781829429510vXXAU_PNG%2Fimage.png"
+      },
+      {
+        "name": "미도인 건대",
+        "category": "양식",
+        "address": "서울 광진구 화양동",
+        "phone": "0507-1321-8857",
+        "latitude": 37.543085,
+        "longitude": 127.070058,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20241104_274%2F1730693748559esDf2_JPEG%2F%25B0%25C7%25B4%25EB%25C8%25A5%25B9%25E4%25B8%25C0%25C1%25FD%25B0%25C7%25B4%25EB%25C1%25B6%25BF%25EB%25C7%25D1%25B8%25C0%25C1%25FD%25B0%25C7%25B4%25EB%25C0%25D4%25B1%25B8%25B8%25C0%25C1%25FD%25B0%25C7%25B4%25EB%25C1%25A1%25BD%25C9%25B8%25C0%25C1%25FD%25B0%25C7%25B4%25EB%25C0%25FA%25B3%25E1%25B8%25C0%25C1%25FD%25B0%25C7%25B4%25EB%25B0%25ED%25B1%25E2%25B8%25C0%25C1%25FD%25B0%25C7%25B4%25EB%25B8%25C0%25C1%25FD%25B3%25BB%25B5%25B7%25B3%25BB%25BB%25EA%25B0%25C7%25B4%25EB%25B6%25B1%25BA%25BA%25C0%25CC%25B8%25C0%25C1%25FD_%25B0%25C7%25B4%25EB%25BA%25D0%25C0%25A7%25B1%25E2%25B8%25C0%25C1%25FD%25B0%25C7%25B4%25EB%25B0%25A1%25BC%25BA%25BA%25F1%25B8%25C0%25C1%25FD%25B0%25C7%25B4%25EB%25B1%25D9%25C3%25B3%25B8%25C0%25C1%25FD%25B0%25C7%25B4%25EB%25C6%25C4%25BD%25BA%25C5%25B8%25B8%25C0%25C1%25FD.jpg"
+      },
+      {
+        "name": "우동키노야 건대점",
+        "category": "우동,소바",
+        "address": "서울 광진구 화양동",
+        "phone": "02-2205-5589",
+        "latitude": 37.540192,
+        "longitude": 127.067645,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": false,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": false,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260730_227%2F17853871841510PVoT_JPEG%2F%25B4%25EB%25B9%25AE_%25281%2529.jpg"
+      },
+      {
+        "name": "탐라육해 건대본점",
+        "category": "요리주점",
+        "address": "서울 광진구 화양동",
+        "phone": "0507-1430-2017",
+        "latitude": 37.542795,
+        "longitude": 127.070215,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": false,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250610_259%2F1749566249380aPr4Y_JPEG%2F%25C5%25A9%25B1%25E2%25BA%25AF%25C8%25AFDSC07492.jpg"
+      },
+      {
+        "name": "희가덕 손만두 건대점",
+        "category": "중식당",
+        "address": "서울 광진구 자양동",
+        "phone": "02-498-0665",
+        "latitude": 37.539345,
+        "longitude": 127.067982,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": false,
+          "room": false,
+          "reservation": false,
+          "conversation": false,
+          "comfortable_seat": false,
+          "pet_friendly": false,
+          "liquor_available": false,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260319_227%2F17738875988191fU3B_PNG%2F%25C8%25F1%25B0%25A1%25B4%25F6%25C4%25B3%25C4%25A1%25C5%25D7%25C0%25CC%25BA%25ED.png"
+      },
+      {
+        "name": "건대 고기굽는놈 본점",
+        "category": "육류,고기요리",
+        "address": "서울 광진구 화양동",
+        "phone": "0507-1330-8821",
+        "latitude": 37.542018,
+        "longitude": 127.069352,
+        "parsed_options": {
+          "parking": true,
+          "high_chair": true,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": true,
+          "pet_friendly": true,
+          "liquor_available": true,
+          "late_night_early": false
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260807_117%2F17860310691476HkwQ_JPEG%2F%25B4%25EB%25B9%25AE.jpg"
+      },
+      {
+        "name": "한우짝갈비살",
+        "category": "소고기구이",
+        "address": "서울 광진구 구의동",
+        "phone": "0507-1301-8835",
+        "latitude": 37.540582,
+        "longitude": 127.087965,
+        "parsed_options": {
+          "parking": true,
+          "high_chair": true,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": false,
+          "comfortable_seat": false,
+          "pet_friendly": true,
+          "liquor_available": true,
+          "late_night_early": false
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20240415_88%2F1713163410992nvujN_JPEG%2F%25C7%25D1%25BF%25EC%25C2%25A6%25B0%25A5%25BA%25F1.jpg"
+      },
+      {
+        "name": "고이장",
+        "category": "요리주점",
+        "address": "서울 광진구 자양동",
+        "phone": "0507-1416-6408",
+        "latitude": 37.537215,
+        "longitude": 127.068532,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": false,
+          "room": false,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": false
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20221122_207%2F16690455448776uzcd_JPEG%2F222.jpg"
+      },
+      {
+        "name": "띠목훠궈 건대점",
+        "category": "중식당",
+        "address": "서울 광진구 화양동",
+        "phone": "0507-1456-7892",
+        "latitude": 37.541325,
+        "longitude": 127.069941,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": false,
+          "pet_friendly": false,
+          "liquor_available": false,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260805_53%2F1785912965511rDtBs_JPEG%2FIMG_3873.jpg"
+      },
+      {
+        "name": "옥화정",
+        "category": "육류,고기요리",
+        "address": "서울 광진구 화양동",
+        "phone": "0507-1325-8741",
+        "latitude": 37.543412,
+        "longitude": 127.069485,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": true,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260511_145%2F1778463137748gq3qp_JPEG%2F1000031434.jpg"
+      },
+      {
+        "name": "사토규카츠 건대본점",
+        "category": "일식당",
+        "address": "서울 광진구 화양동",
+        "phone": "0507-1366-1946",
+        "latitude": 37.541275,
+        "longitude": 127.068412,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250610_262%2F1749529474404TOyrR_JPEG%2F%25BB%25E7%25C5%25E4%25B1%25D4%25C4%25AB%25C3%25F7%252825.06.02%252915012.jpg"
+      },
+      {
+        "name": "성수완당",
+        "category": "한식",
+        "address": "서울 광진구 자양동",
+        "phone": "0507-1448-5243",
+        "latitude": 37.538521,
+        "longitude": 127.066785,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": false,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260408_238%2F1775617924572r3cqU_JPEG%2F%25C4%25C1%25BC%25C1%25BC%25A6_234.jpg"
+      },
+      {
+        "name": "바인",
+        "category": "와인/바",
+        "address": "서울 광진구 화양동",
+        "phone": "0507-1439-0285",
+        "latitude": 37.541185,
+        "longitude": 127.068325,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20230306_132%2F1678058338787T8P07_JPEG%2F%25B9%25D9%25C0%25CE_%25BD%25BA%25B8%25B6%25C0%25CF_%25B7%25CE%25B0%25EDS.jpg"
+      },
+      {
+        "name": "쿠우쿠우 블루레일 건대직영점",
+        "category": "일식,초밥뷔페",
+        "address": "서울 광진구 자양동",
+        "phone": "0507-1341-6274",
+        "latitude": 37.540352,
+        "longitude": 127.068715,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": true,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": false,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260817_145%2F1786956797390AvDez_JPEG%2FChatGPT_Image_2026%25B3%25E2_8%25BF%25F9_17%25C0%25CF_%25BF%25C0%25C8%25C4_05_52_37.jpg"
+      },
+      {
+        "name": "민지슈퍼 건대본점",
+        "category": "요리주점",
+        "address": "서울 광진구 화양동",
+        "phone": "0507-1332-2084",
+        "latitude": 37.542451,
+        "longitude": 127.069324,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260612_193%2F1781241974306tgTpp_JPEG%2Fgsdfg.jpg"
+      },
+      {
+        "name": "김창훈포차",
+        "category": "요리주점",
+        "address": "서울 광진구 화양동",
+        "phone": "0507-1314-2084",
+        "latitude": 37.542150,
+        "longitude": 127.069280,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": false,
+          "group_seats": true,
+          "room": true,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20251215_65%2F1765771616793Bo4Pl_JPEG%2F%25B1%25E8%25C3%25A2%25C8%25C6%25C6%25F7%25C2%25F7_-20.jpg"
+      },
+      {
+        "name": "난바다스시",
+        "category": "초밥,롤",
+        "address": "서울 광진구 구의동",
+        "phone": "0507-1318-9666",
+        "latitude": 37.537825,
+        "longitude": 127.084512,
+        "parsed_options": {
+          "parking": true,
+          "high_chair": false,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": false,
+          "comfortable_seat": false,
+          "pet_friendly": false,
+          "liquor_available": false,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260527_194%2F17798581059867V6eb_JPEG%2FA_professional_restaurant_promotional_photo_featur-1779857718736.jpg"
+      },
+      {
+        "name": "코시 건대점",
+        "category": "우동,소바",
+        "address": "서울 광진구 자양동",
+        "phone": "0507-1358-2587",
+        "latitude": 37.539851,
+        "longitude": 127.065421,
+        "parsed_options": {
+          "parking": true,
+          "high_chair": true,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": false,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": false,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20260724_192%2F1784877621318fPIdD_JPEG%2F%25B4%25EB%25C7%25A51.jpg"
+      },
+      {
+        "name": "탄토탄토",
+        "category": "이탈리아음식",
+        "address": "서울 광진구 화양동",
+        "phone": "02-2039-2915",
+        "latitude": 37.542915,
+        "longitude": 127.070012,
+        "parsed_options": {
+          "parking": false,
+          "high_chair": true,
+          "group_seats": true,
+          "room": false,
+          "reservation": true,
+          "conversation": true,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": true,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20250224_263%2F1740367412181WdWVm_JPEG%2FKakaoTalk_20250224_122254769.jpg"
+      },
+      {
+        "name": "굴림샤브&콩국수",
+        "category": "한식",
+        "address": "서울 광진구 화양동",
+        "phone": "0507-1336-2771",
+        "latitude": 37.548124,
+        "longitude": 127.073452,
+        "parsed_options": {
+          "parking": true,
+          "high_chair": true,
+          "group_seats": true,
+          "room": true,
+          "reservation": true,
+          "conversation": false,
+          "comfortable_seat": true,
+          "pet_friendly": false,
+          "liquor_available": false,
+          "late_night_early": true
+        },
+        "image_url": "https://search.pstatic.net/common/?autoRotate=true&type=w560_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20240626_70%2F1719387639430dB0ck_JPEG%2FKakaoTalk_20240626_132441336_23.jpg"
+      }
+    ];
+    let map = null;            // Leaflet 지도 객체
+    let markers = [];          // 지도 상에 표시되고 있는 마커 배열
+    let currentPreset = null;  // 현재 선택된 프리셋 ('family', 'friends', 'dinner', null)
+    
+    // 개별 태그의 ON/OFF 토글 상태 (전체 10개 태그 대상)
+    const activeFilters = {
+      parking: false,
+      group_seats: false,
+      high_chair: false,
+      room: false,
+      reservation: false,
+      conversation: false,
+      comfortable_seat: false,
+      pet_friendly: false,
+      liquor_available: false,
+      late_night_early: false
+    };
+
+    // 상세 모달에 현재 노출 중인 장소 임시 보관
+    let currentPlaceInDetail = null;
+
+    // ----------------------------------------------------
+    // 3. UI 요소 참조
+    // ----------------------------------------------------
+    const presetButtons = {
+      family: document.getElementById('preset-family'),
+      friends: document.getElementById('preset-friends'),
+      dinner: document.getElementById('preset-dinner')
+    };
+    const toggleTagsBtn = document.getElementById('toggle-tags-btn');
+    const expandedTagsPanel = document.getElementById('expanded-tags-panel');
+    const tagsGridContainer = document.getElementById('tags-grid-container');
+    const matchCountEl = document.getElementById('match-count');
+    const placesListContainer = document.getElementById('places-list-container');
+    
+    const detailModal = document.getElementById('detail-modal');
+    const detailImg = document.getElementById('detail-img');
+    const detailName = document.getElementById('detail-name');
+    const detailCategory = document.getElementById('detail-category');
+    const detailAddress = document.getElementById('detail-address');
+    const detailPhone = document.getElementById('detail-phone');
+    const detailOptionsGrid = document.getElementById('detail-options-grid');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const cancelPlaceBtn = document.getElementById('cancel-place-btn');
+    const selectPlaceBtn = document.getElementById('select-place-btn');
+
+    // ----------------------------------------------------
+    // 4. 초기화 함수
+    // ----------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      initMap();
+      renderExtendedTags();
+      updateDashboard(); // fetch 없이 바로 실행
+      setupEventListeners();
+    });
+
+    // 4-1. 지도 초기화 (건대입구역 2번 출구 기준)
+    function initMap() {
+      // 건대입구역 2번 출구 좌표: [37.5404, 127.0692]
+      map = L.map('map', {
+        zoomControl: false, // UI 깔끔하게 하기 위해 기본 줌 컨트롤 제거
+        attributionControl: false // 하단 OSM 표기 삭제하여 심플하게
+      }).setView([37.5404, 127.0692], 16);
+
+      // CartoDB Positron 타일 사용 (외부 상점/POI가 거의 노출되지 않는 순수 맵 타일)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19
+      }).addTo(map);
+    }
+
+    // 4-2. 확장 태그 풀 렌더링 (가나다순)
+    function renderExtendedTags() {
+      tagsGridContainer.innerHTML = '';
+      sortedExtendedTagKeys.forEach(key => {
+        const btn = document.createElement('button');
+        btn.className = 'tag-item';
+        btn.id = `tag-item-${key}`;
+        btn.textContent = tagMeta[key];
+        btn.addEventListener('click', () => toggleIndividualTag(key));
+        tagsGridContainer.appendChild(btn);
+      });
+    }
+
+
+
+    // 4-4. 이벤트 리스너 바인딩
+    function setupEventListeners() {
+      // 프리셋 버튼 클릭 이벤트
+      Object.keys(presetButtons).forEach(presetKey => {
+        presetButtons[presetKey].addEventListener('click', () => {
+          selectPreset(presetKey);
+        });
+      });
+
+      // [+ 조건 추가] 토글 버튼
+      toggleTagsBtn.addEventListener('click', () => {
+        const isOpen = expandedTagsPanel.classList.toggle('open');
+        toggleTagsBtn.classList.toggle('active', isOpen);
+      });
+
+      // 바텀시트 토글 이벤트 리스너 추가
+      const bottomSheet = document.getElementById('bottom-sheet');
+      const sheetHandle = document.getElementById('sheet-handle');
+      const sheetHeader = document.querySelector('.sheet-header');
+
+      function toggleBottomSheet() {
+        bottomSheet.classList.toggle('expanded');
+      }
+
+      sheetHandle.addEventListener('click', toggleBottomSheet);
+      sheetHeader.addEventListener('click', toggleBottomSheet);
+
+      // 상세보기 모달 닫기
+      closeModalBtn.addEventListener('click', closeDetailModal);
+      cancelPlaceBtn.addEventListener('click', closeDetailModal);
+
+      // 상세보기 모달 [이 장소로 선택]
+      selectPlaceBtn.addEventListener('click', completeTaskWithSelection);
+    }
+
+    // ----------------------------------------------------
+    // 5. 핵심 비즈니스 로직 (프리셋 & 태그 제어)
+    // ----------------------------------------------------
+    
+    // 5-1. 프리셋 선택 및 변경 처리
+    function selectPreset(presetKey) {
+      // 0개 매칭 분기에서 복구 중인 경우를 감지하기 위함
+      let wasZeroResult = (getFilteredPlaces().length === 0);
+
+      if (currentPreset === presetKey) {
+        // 동일 프리셋 클릭 시 해제
+        currentPreset = null;
+        logData.selectedPreset = "없음";
+        // 모든 필터 해제
+        Object.keys(activeFilters).forEach(k => activeFilters[k] = false);
+      } else {
+        // 프리셋 선택 변경 시: 이전의 토글 상태는 초기화
+        currentPreset = presetKey;
+        logData.selectedPreset = translatePresetName(presetKey);
+        
+        // 필터 리셋 후 해당 프리셋 기본 조건만 ON
+        Object.keys(activeFilters).forEach(k => activeFilters[k] = false);
+        const presetTags = presetConfig[presetKey];
+        presetTags.forEach(tag => {
+          activeFilters[tag] = true;
+        });
+      }
+
+      // 복구 액션 감지 로직
+      if (wasZeroResult) {
+        // 0개 상태에서 프리셋을 변경/해제하여 다시 결과가 1개 이상이 된다면
+        const nowCount = getFilteredPlaces().length;
+        if (nowCount > 0) {
+          logData.zeroResultRecoveryAction = "reset_clicked";
+        }
+      }
+
+      updateDashboard();
+    }
+
+    // 프리셋 한글명 번역
+    function translatePresetName(key) {
+      if (key === 'family') return "가족모임";
+      if (key === 'friends') return "친구모임";
+      if (key === 'dinner') return "회식";
+      return "없음";
+    }
+
+    // 5-2. 개별 태그 온/오프 토글
+    function toggleIndividualTag(tagKey) {
+      const wasZeroResult = (getFilteredPlaces().length === 0);
+      
+      // 토글 상태 변경
+      activeFilters[tagKey] = !activeFilters[tagKey];
+      
+      // 행동 로그 누적 기록
+      logData.tagToggleLogs.push({
+        timestamp: new Date().toISOString(),
+        tag: tagKey,
+        action: activeFilters[tagKey] ? "ON" : "OFF"
+      });
+
+      // 복구 액션 감지 로직
+      if (wasZeroResult) {
+        const nowCount = getFilteredPlaces().length;
+        if (nowCount > 0) {
+          // 태그 토글을 통해 결과를 1개 이상으로 살려냈다면 relaxed_filter
+          logData.zeroResultRecoveryAction = "relaxed_filter";
+        }
+      }
+
+      updateDashboard();
+    }
+
+    // 5-3. 필터 리셋 (결과 0건 복구용)
+    function resetToPresetDefaults() {
+      // 0개 결과 복구 액션에 reset_clicked 기록
+      logData.zeroResultRecoveryAction = "reset_clicked";
+
+      if (currentPreset) {
+        // 현재 프리셋의 기본 조건만 남기고 모두 초기화
+        Object.keys(activeFilters).forEach(k => activeFilters[k] = false);
+        const defaultTags = presetConfig[currentPreset];
+        defaultTags.forEach(tag => {
+          activeFilters[tag] = true;
+        });
+      } else {
+        // 프리셋마저 없는 초기 상태였다면 전체 필터 오프
+        Object.keys(activeFilters).forEach(k => activeFilters[k] = false);
+      }
+
+      updateDashboard();
+    }
+
+    // ----------------------------------------------------
+    // 6. 데이터 필터링 및 뷰 업데이트
+    // ----------------------------------------------------
+
+    // 6-1. 현재 활성화된 필터 조건에 따른 장소 필터링
+    function getFilteredPlaces() {
+      // 활성화된 태그 리스트 추출
+      const activeTagKeys = Object.keys(activeFilters).filter(k => activeFilters[k]);
+      
+      // 필터링 적용 (AND 조건)
+      return placesData.filter(place => {
+        return activeTagKeys.every(tag => place.parsed_options[tag] === true);
+      });
+    }
+
+    // 6-2. 대시보드(지도 마커 + 하단 리스트) 일괄 업데이트
+    function updateDashboard() {
+      const filtered = getFilteredPlaces();
+      
+      // 0건 예외 기록 트리거
+      if (filtered.length === 0) {
+        logData.zeroResultTriggered = true;
+      }
+
+      // UI 갱신
+      updateUIFilters();
+      updateMapMarkers(filtered);
+      updatePlacesList(filtered);
+    }
+
+    // 6-3. 필터 UI 컴포넌트 상태 갱신
+    function updateUIFilters() {
+      // 프리셋 버튼 활성화 스타일
+      Object.keys(presetButtons).forEach(key => {
+        if (currentPreset === key) {
+          presetButtons[key].classList.add('active');
+        } else {
+          presetButtons[key].classList.remove('active');
+        }
+      });
+
+      // 확장 태그 칩 활성화 스타일
+      sortedExtendedTagKeys.forEach(key => {
+        const el = document.getElementById(`tag-item-${key}`);
+        if (el) {
+          if (activeFilters[key]) {
+            el.classList.add('active');
+          } else {
+            el.classList.remove('active');
+          }
+        }
+      });
+    }
+
+    // 6-4. 지도 마커 재생성
+    function updateMapMarkers(filteredPlaces) {
+      // 기존 마커들 삭제
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+
+      filteredPlaces.forEach((place, index) => {
+        // 커스텀 DivIcon 정의 (네이버 지도 말풍선)
+        const customIcon = L.divIcon({
+          className: 'custom-marker',
+          html: `<div class="marker-bubble">${place.name}</div>`,
+          iconSize: null,
+          iconAnchor: [30, 30]
+        });
+
+        const marker = L.marker([place.latitude, place.longitude], { icon: customIcon }).addTo(map);
+        
+        // 마커 클릭 시 동작
+        marker.on('click', () => {
+          // 마커 하이라이트 전환
+          markers.forEach(m => {
+            const el = m.getElement();
+            if (el) el.classList.remove('selected-pin');
+          });
+          const currentEl = marker.getElement();
+          if (currentEl) currentEl.classList.add('selected-pin');
+          
+          // 마커 클릭 시 바텀시트 자동 펼침
+          const bottomSheet = document.getElementById('bottom-sheet');
+          if (bottomSheet) {
+            bottomSheet.classList.add('expanded');
+          }
+          
+          // 리스트 스크롤 포커싱 및 카드 하이라이트 효과
+          focusPlaceInList(place.name);
+        });
+
+        // 템포러리 매핑
+        marker.placeName = place.name;
+        markers.push(marker);
+      });
+
+      // 필터링 결과가 있을 때만 지도의 포커스를 맞춤
+      if (filteredPlaces.length > 0) {
+        const group = new L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.15));
+      }
+    }
+
+    // 6-5. 리스트 영역 데이터 렌더링
+    function updatePlacesList(filteredPlaces) {
+      matchCountEl.textContent = filteredPlaces.length;
+      placesListContainer.innerHTML = '';
+
+      if (filteredPlaces.length === 0) {
+        // 매칭 결과가 0개인 경우 예외 화면
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'empty-result-container';
+        emptyDiv.innerHTML = `
+          <div class="empty-icon"><i class="fa-regular fa-face-frown"></i></div>
+          <div class="empty-message">조건에 맞는 곳이 없어요.<br>조건을 완화해 보세요.</div>
+          <button class="reset-btn" onclick="resetToPresetDefaults()">기본 조건으로 초기화</button>
+        `;
+        placesListContainer.appendChild(emptyDiv);
+        return;
+      }
+
+      // 카드 리스트 렌더링
+      filteredPlaces.forEach(place => {
+        const card = document.createElement('div');
+        card.className = 'place-card';
+        card.id = `place-card-${place.name.replace(/\s+/g, '-')}`;
+        
+        // 매칭 배지 HTML 빌드 (true 옵션들만 뱃지로 표현)
+        let badgesHtml = '';
+        Object.keys(place.parsed_options).forEach(key => {
+          if (place.parsed_options[key] === true) {
+            badgesHtml += `<span class="tag-badge">#${tagMeta[key]}</span> `;
+          }
+        });
+
+        card.innerHTML = `
+          <div class="place-img-wrapper">
+            <img class="place-img" src="${place.image_url}" alt="${place.name}">
+          </div>
+          <div class="place-info">
+            <div class="place-title-row">
+              <div class="place-name">${place.name}</div>
+              <div class="place-category">${place.category}</div>
+            </div>
+            <div class="place-tags">
+              ${badgesHtml}
+            </div>
+          </div>
+        `;
+
+        card.addEventListener('click', () => {
+          openDetailModal(place);
+        });
+
+        placesListContainer.appendChild(card);
+      });
+    }
+
+    // ----------------------------------------------------
+    // 7. 인터랙션 상세 연동 (바텀시트 포커스 & 모달 제어)
+    // ----------------------------------------------------
+
+    // 7-1. 특정 카드로 리스트 스크롤 포커스 및 하이라이팅
+    function focusPlaceInList(placeName) {
+      const cardId = `place-card-${placeName.replace(/\s+/g, '-')}`;
+      const cardEl = document.getElementById(cardId);
+      
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
+        // 이전 하이라이팅 제거 후 재시작
+        document.querySelectorAll('.place-card').forEach(c => c.classList.remove('highlighted'));
+        cardEl.classList.add('highlighted');
+      }
+    }
+
+    // 7-2. 장소 상세보기 모달 오픈
+    function openDetailModal(place) {
+      currentPlaceInDetail = place;
+      
+      // 모달 필드 동적 채우기
+      detailImg.src = place.image_url;
+      detailName.textContent = place.name;
+      detailCategory.textContent = place.category;
+      detailAddress.textContent = place.address;
+      detailPhone.textContent = place.phone;
+
+      // 상세 옵션 10개 전체 그리드 렌더링
+      detailOptionsGrid.innerHTML = '';
+      Object.keys(place.parsed_options).forEach(key => {
+        const isMatched = place.parsed_options[key] === true;
+        const pill = document.createElement('div');
+        pill.className = `detail-option-pill ${isMatched ? 'active' : ''}`;
+        pill.innerHTML = `
+          <i class="${isMatched ? 'fa-solid fa-check' : 'fa-solid fa-minus'}" style="color:${isMatched ? 'var(--naver-green)' : 'var(--text-muted)'}"></i>
+          <span>${tagMeta[key]}</span>
+        `;
+        detailOptionsGrid.appendChild(pill);
+      });
+
+      // 로깅을 위한 수치 증가 및 타이머 시작
+      logData.detailViewCount += 1;
+      detailOpenTime = Date.now();
+
+      // 슬라이딩 모달 오픈
+      detailModal.classList.add('open');
+      detailModal.style.display = 'flex';
+    }
+
+    // 7-3. 장소 상세보기 모달 닫기
+    function closeDetailModal() {
+      // 상세 모달 머문 시간 누적 합산
+      if (detailOpenTime) {
+        const stayDuration = (Date.now() - detailOpenTime) / 1000.0;
+        logData.detailStayDurationSec += stayDuration;
+        detailOpenTime = null;
+      }
+      
+      // 모달 닫기
+      detailModal.classList.remove('open');
+      detailModal.style.display = 'none';
+      currentPlaceInDetail = null;
+    }
+
+    // ----------------------------------------------------
+    // 8. 최종 선택 및 행동 로그 내보내기 (Task 종료)
+    // ----------------------------------------------------
+    function completeTaskWithSelection() {
+      if (!currentPlaceInDetail) return;
+
+      // 최종 상세 뷰 시간 누적
+      if (detailOpenTime) {
+        const stayDuration = (Date.now() - detailOpenTime) / 1000.0;
+        logData.detailStayDurationSec += stayDuration;
+        detailOpenTime = null;
+      }
+
+      // 최종 로그 데이터 조립
+      logData.taskEndTime = new Date().toISOString();
+      const totalDur = (new Date(logData.taskEndTime) - new Date(logData.taskStartTime)) / 1000.0;
+      logData.totalDurationSec = parseFloat(totalDur.toFixed(2));
+      logData.finalSelectedPlace = currentPlaceInDetail.name;
+
+      // 0개 결과가 있었으나 어떻게든 조건 변경을 통해 최종 장소를 선택했을 때 recovery action이 미정상태면 채워넣음
+      if (logData.zeroResultTriggered && !logData.zeroResultRecoveryAction) {
+        logData.zeroResultRecoveryAction = "relaxed_filter";
+      }
+
+      // 1. "선택이 완료되었습니다" 안내 팝업 노출
+      alert("선택이 완료되었습니다.");
+
+      // 2. 브라우저 콘솔에 로그 객체 JSON 출력
+      console.log("---- 실험 행동 로그 (JSON) ----");
+      console.log(JSON.stringify(logData, null, 2));
+
+      // 3. experiment_log.json 파일 자동 다운로드 처리
+      triggerLogDownload(logData);
+    }
+
+    // 로그 파일 다운로드 기능
+    function triggerLogDownload(data) {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "experiment_log.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+  </script>
+</body>
+</html>
