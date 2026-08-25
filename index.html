@@ -212,12 +212,14 @@
       transition: max-height 0.3s ease-out, padding 0.3s ease-out;
       background-color: #f9fafc;
       border-bottom: 0 solid var(--border-light);
+      z-index: 109;
     }
 
     .expanded-tags-container.open {
-      max-height: 120px;
+      max-height: 160px;
       padding: 12px 16px;
       border-bottom: 1px solid var(--border-light);
+      overflow-y: auto;
     }
 
     .tags-grid {
@@ -484,6 +486,13 @@
       font-weight: 500;
     }
 
+    /* 현재 켜져 있는 필터 조건과 일치하는 매칭 배지 하이라이트 스타일 */
+    .tag-badge.matched {
+      background-color: var(--naver-green) !important;
+      color: #fff !important;
+      font-weight: 700 !important;
+    }
+
     /* 0건 결과 컨테이너 */
     .empty-result-container {
       display: flex;
@@ -722,6 +731,84 @@
     .cancel-place-btn:hover {
       background-color: #e4e4e7;
     }
+
+    /* 태스크 완료 모달 팝업 */
+    .completion-modal {
+      display: none; /* 기본 숨김 */
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 2000; /* 최상위 노출 */
+      justify-content: center;
+      align-items: center;
+    }
+
+    .completion-content {
+      background: #fff;
+      padding: 32px 24px;
+      border-radius: 16px;
+      width: 85%;
+      max-width: 340px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .completion-icon {
+      font-size: 40px;
+      color: var(--naver-green);
+      margin-bottom: 16px;
+    }
+
+    .completion-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .completion-msg {
+      font-size: 14px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .completion-shop {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--naver-green);
+      background-color: var(--naver-green-light);
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .completion-btn {
+      width: 100%;
+      height: 48px;
+      border-radius: 8px;
+      background-color: var(--naver-green);
+      color: #fff;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .completion-btn:hover {
+      background-color: var(--naver-green-dark);
+    }
   </style>
 </head>
 <body>
@@ -830,6 +917,18 @@
         </div>
       </div>
 
+      <!-- 태스크 완료 모달 팝업 -->
+      <div class="completion-modal" id="completion-modal">
+        <div class="completion-content">
+          <div class="completion-icon">🎉</div>
+          <div class="completion-title">장소 선택이 완료되었습니다!</div>
+          <div class="completion-msg">선택한 매장</div>
+          <div class="completion-shop" id="completion-shop-name">매장 이름</div>
+          <div class="completion-msg">테스트에 참여해 주셔서 대단히 감사합니다.</div>
+          <button class="completion-btn" id="completion-confirm-btn">확인</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -858,6 +957,9 @@
     // 상세 모달 체류 시간 추적을 위한 변수
     let detailOpenTime = null;
 
+    // 구글 스프레드시트 웹훅 URL
+    const GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycyb0BVuCj0W5nxsFWY0URhVMtC7nboDcq0DX4uCoviHl9yLJ8Qf1yRYGtiJDb7s9lwx_Cw/exec";
+
     // ----------------------------------------------------
     // 1. 태그 메타데이터 및 한글 정렬 정의
     // ----------------------------------------------------
@@ -882,11 +984,13 @@
       dinner: ["group_seats", "room", "reservation"]
     };
 
-    // 확장 태그 풀 정의
-    const extendedTagKeys = ["pet_friendly", "liquor_available", "late_night_early", "parking", "room"];
+    // 전체 10개 조건 태그 리스트
+    const extendedTagKeys = [
+      "parking", "group_seats", "high_chair", "room", "reservation",
+      "conversation", "comfortable_seat", "pet_friendly", "liquor_available", "late_night_early"
+    ];
     
-    // 확장 태그 풀 한글 가나다순 정렬 배치
-    // 한글 기준: 개별룸(room) -> 반려동물동반(pet_friendly) -> 심야/이른영업(late_night_early) -> 주류/콜키지(liquor_available) -> 주차가능(parking)
+    // 10개 태그 전체 한글 가나다순 정렬 배치
     const sortedExtendedTagKeys = [...extendedTagKeys].sort((a, b) => {
       return tagMeta[a].localeCompare(tagMeta[b], 'ko');
     });
@@ -1404,6 +1508,11 @@
     const cancelPlaceBtn = document.getElementById('cancel-place-btn');
     const selectPlaceBtn = document.getElementById('select-place-btn');
 
+    // 태스크 완료 모달 요소 참조
+    const completionModal = document.getElementById('completion-modal');
+    const completionShopName = document.getElementById('completion-shop-name');
+    const completionConfirmBtn = document.getElementById('completion-confirm-btn');
+
     // ----------------------------------------------------
     // 4. 초기화 함수
     // ----------------------------------------------------
@@ -1428,7 +1537,7 @@
       }).addTo(map);
     }
 
-    // 4-2. 확장 태그 풀 렌더링 (가나다순)
+    // 4-2. 확장 태그 풀 렌더링 (가나다순 10개 조건 태그 전체 노출)
     function renderExtendedTags() {
       tagsGridContainer.innerHTML = '';
       sortedExtendedTagKeys.forEach(key => {
@@ -1440,8 +1549,6 @@
         tagsGridContainer.appendChild(btn);
       });
     }
-
-
 
     // 4-4. 이벤트 리스너 바인딩
     function setupEventListeners() {
@@ -1476,6 +1583,11 @@
 
       // 상세보기 모달 [이 장소로 선택]
       selectPlaceBtn.addEventListener('click', completeTaskWithSelection);
+
+      // 태스크 완료 확인 버튼 클릭 시 모달 닫고 리셋/종료 유도
+      completionConfirmBtn.addEventListener('click', () => {
+        completionModal.style.display = 'none';
+      });
     }
 
     // ----------------------------------------------------
@@ -1504,6 +1616,10 @@
         presetTags.forEach(tag => {
           activeFilters[tag] = true;
         });
+
+        // 프리셋을 켜면 활성화된 조건들이 있는 태그 패널을 자동으로 확장하여 시각적 확인이 가능하게 함
+        expandedTagsPanel.classList.add('open');
+        toggleTagsBtn.classList.add('active');
       }
 
       // 복구 액션 감지 로직
@@ -1602,7 +1718,7 @@
       updatePlacesList(filtered);
     }
 
-    // 6-3. 필터 UI 컴포넌트 상태 갱신
+    // 6-3. 필터 UI 컴포넌트 상태 갱신 (10개 태그 연동)
     function updateUIFilters() {
       // 프리셋 버튼 활성화 스타일
       Object.keys(presetButtons).forEach(key => {
@@ -1613,7 +1729,7 @@
         }
       });
 
-      // 확장 태그 칩 활성화 스타일
+      // 확장 태그 칩 활성화 스타일 (10개 조건 태그 파란색 하이라이트)
       sortedExtendedTagKeys.forEach(key => {
         const el = document.getElementById(`tag-item-${key}`);
         if (el) {
@@ -1699,11 +1815,12 @@
         card.className = 'place-card';
         card.id = `place-card-${place.name.replace(/\s+/g, '-')}`;
         
-        // 매칭 배지 HTML 빌드 (true 옵션들만 뱃지로 표현)
+        // 매칭 배지 HTML 빌드 (현재 켜져 있는 필터 조건과 일치하면 matched 하이라이트 부여)
         let badgesHtml = '';
         Object.keys(place.parsed_options).forEach(key => {
           if (place.parsed_options[key] === true) {
-            badgesHtml += `<span class="tag-badge">#${tagMeta[key]}</span> `;
+            const isFilterOn = activeFilters[key] === true;
+            badgesHtml += `<span class="tag-badge ${isFilterOn ? 'matched' : ''}">#${tagMeta[key]}</span> `;
           }
         });
 
@@ -1797,7 +1914,7 @@
     }
 
     // ----------------------------------------------------
-    // 8. 최종 선택 및 행동 로그 내보내기 (Task 종료)
+    // 8. 최종 선택 및 행동 로그 전송 (구글 시트 연동)
     // ----------------------------------------------------
     function completeTaskWithSelection() {
       if (!currentPlaceInDetail) return;
@@ -1815,31 +1932,32 @@
       logData.totalDurationSec = parseFloat(totalDur.toFixed(2));
       logData.finalSelectedPlace = currentPlaceInDetail.name;
 
-      // 0개 결과가 있었으나 어떻게든 조건 변경을 통해 최종 장소를 선택했을 때 recovery action이 미정상태면 채워넣음
       if (logData.zeroResultTriggered && !logData.zeroResultRecoveryAction) {
         logData.zeroResultRecoveryAction = "relaxed_filter";
       }
 
-      // 1. "선택이 완료되었습니다" 안내 팝업 노출
-      alert("선택이 완료되었습니다.");
+      // 1. 구글 스프레드시트로 로그 자동 전송 (CORS no-cors 모드)
+      fetch(GOOGLE_WEBHOOK_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(logData)
+      })
+      .then(() => console.log("구글 스프레드시트로 로그 전송 완료"))
+      .catch(err => console.error("Webhook Error:", err));
 
-      // 2. 브라우저 콘솔에 로그 객체 JSON 출력
-      console.log("---- 실험 행동 로그 (JSON) ----");
-      console.log(JSON.stringify(logData, null, 2));
+      // 2. 상세보기 모달 숨기기
+      detailModal.classList.remove('open');
+      detailModal.style.display = 'none';
 
-      // 3. experiment_log.json 파일 자동 다운로드 처리
-      triggerLogDownload(logData);
+      // 3. 인앱 완료 모달 팝업 띄우기
+      showCompletionModal(currentPlaceInDetail.name);
     }
 
-    // 로그 파일 다운로드 기능
-    function triggerLogDownload(data) {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "experiment_log.json");
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
+    // 인앱 완료 모달 노출 로직
+    function showCompletionModal(shopName) {
+      completionShopName.textContent = shopName;
+      completionModal.style.display = 'flex';
     }
   </script>
 </body>
