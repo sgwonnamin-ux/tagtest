@@ -16,7 +16,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    /* 기본 테마 및 레이아웃 설정 */
     :root {
       --naver-green: #03C75A;
       --naver-green-dark: #02b34f;
@@ -47,7 +46,6 @@
       overflow: hidden;
     }
 
-    /* 모바일 디바이스 프레임 */
     .phone-container {
       width: 100%;
       max-width: 430px;
@@ -64,7 +62,10 @@
     }
 
     @media (max-width: 480px) {
-      body { background-color: #fff; }
+      body {
+        background-color: #fff;
+      }
+
       .phone-container {
         max-width: 100%;
         height: 100vh;
@@ -74,7 +75,6 @@
       }
     }
 
-    /* 상단바 목업 */
     .phone-header-bar {
       height: 36px;
       background-color: #fff;
@@ -93,7 +93,6 @@
       margin-left: 5px;
     }
 
-    /* 메인 앱 바디 */
     .app-body {
       flex: 1;
       display: flex;
@@ -103,7 +102,6 @@
       background-color: var(--bg-gray);
     }
 
-    /* 네이버 검색바 */
     .search-section {
       background-color: #fff;
       padding: 12px 16px 8px 16px;
@@ -147,7 +145,6 @@
       font-size: 16px;
     }
 
-    /* 프리셋 칩 목록 */
     .filter-section {
       background-color: #fff;
       padding: 4px 16px 12px 16px;
@@ -163,7 +160,10 @@
       padding-bottom: 4px;
       scrollbar-width: none;
     }
-    .preset-chips::-webkit-scrollbar { display: none; }
+
+    .preset-chips::-webkit-scrollbar {
+      display: none;
+    }
 
     .chip {
       display: inline-flex;
@@ -201,7 +201,6 @@
       transform: rotate(45deg);
     }
 
-    /* 2번: 드롭다운 확장 태그 풀 */
     .expanded-tags-container {
       max-height: 0;
       overflow: hidden;
@@ -242,7 +241,6 @@
       font-weight: 700;
     }
 
-    /* 지도 영역 */
     .map-container {
       flex: 1;
       position: relative;
@@ -254,7 +252,6 @@
       height: 100%;
     }
 
-    /* 말풍선 마커 */
     .custom-marker {
       background: none;
       border: none;
@@ -316,16 +313,21 @@
       z-index: 999;
       transform: translate(-50%, -100%) scale(1.1);
     }
-    .custom-marker.selected-pin .marker-bubble::after { border-color: #be123c transparent; }
-    .custom-marker.selected-pin .marker-bubble::before { border-color: #e11d48 transparent; }
 
-    /* 하단 바텀시트 */
+    .custom-marker.selected-pin .marker-bubble::after {
+      border-color: #be123c transparent;
+    }
+
+    .custom-marker.selected-pin .marker-bubble::before {
+      border-color: #e11d48 transparent;
+    }
+
     .bottom-sheet {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 380px;
+      height: 420px;
       background-color: #fff;
       border-radius: 20px 20px 0 0;
       box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
@@ -368,6 +370,7 @@
       color: var(--text-sub);
       font-weight: 500;
     }
+
     .sheet-header-title span {
       color: var(--naver-green);
       font-weight: 700;
@@ -379,23 +382,24 @@
       padding: 0 16px 20px 16px;
     }
 
-    /* 장소 카드 */
     .place-card {
       display: flex;
-      padding: 16px 0;
+      padding: 14px 0;
       border-bottom: 1px solid var(--border-light);
       cursor: pointer;
-      gap: 16px;
+      gap: 14px;
       border-radius: 8px;
-      transition: background-color 0.2s;
     }
-    .place-card:last-child { border-bottom: none; }
+
+    .place-card:last-child {
+      border-bottom: none;
+    }
 
     .place-img-wrapper {
-      width: 88px;
-      height: 88px;
+      width: 92px;
+      height: 92px;
       flex-shrink: 0;
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
       background-color: #eef1f6;
     }
@@ -417,12 +421,12 @@
     .place-title-row {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
+      align-items: baseline;
+      gap: 6px;
     }
 
     .place-name {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--text-main);
       overflow: hidden;
@@ -431,9 +435,56 @@
     }
 
     .place-category {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-sub);
       font-weight: 500;
+    }
+
+    .place-score-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .place-score {
+      color: #f59e0b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .place-reviews {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .place-menu-row {
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .place-review-snippet {
+      font-size: 11px;
+      color: #64748b;
+      background-color: #f8fafc;
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-top: 5px;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      border: 1px solid #edf2f7;
     }
 
     .place-tags {
@@ -445,8 +496,8 @@
 
     .tag-badge {
       display: inline-block;
-      font-size: 11px;
-      padding: 2px 6px;
+      font-size: 10px;
+      padding: 2px 5px;
       border-radius: 4px;
       background-color: #f0f0f4;
       color: #55555e;
@@ -459,7 +510,6 @@
       font-weight: 700 !important;
     }
 
-    /* 0건 결과 */
     .empty-result-container {
       display: flex;
       flex-direction: column;
@@ -495,7 +545,6 @@
       box-shadow: 0 4px 10px rgba(3, 199, 90, 0.2);
     }
 
-    /* 상세보기 모달 */
     .detail-modal {
       position: absolute;
       top: 0;
@@ -514,13 +563,18 @@
     }
 
     @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
     }
 
     .detail-header {
       position: relative;
-      height: 200px;
+      height: 180px;
       background-color: #eef1f6;
     }
 
@@ -551,13 +605,13 @@
     .detail-content {
       flex: 1;
       overflow-y: auto;
-      padding: 24px 20px;
+      padding: 20px;
     }
 
     .detail-meta {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       border-bottom: 1px solid var(--border-light);
-      padding-bottom: 20px;
+      padding-bottom: 16px;
     }
 
     .detail-title-row {
@@ -568,7 +622,7 @@
     }
 
     .detail-name {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 900;
       color: var(--text-main);
     }
@@ -579,18 +633,37 @@
       font-weight: 500;
     }
 
+    .detail-score-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .detail-review-highlight {
+      background: #f8fafc;
+      border-left: 3px solid var(--naver-green);
+      padding: 10px 12px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.5;
+      margin: 14px 0;
+    }
+
     .detail-info-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-top: 20px;
+      gap: 10px;
+      margin-top: 14px;
     }
 
     .detail-info-item {
       display: flex;
       align-items: flex-start;
-      gap: 12px;
-      font-size: 14px;
+      gap: 10px;
+      font-size: 13px;
       color: #3f3f46;
       line-height: 1.4;
     }
@@ -602,14 +675,14 @@
     }
 
     .detail-options-section {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .detail-section-title {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       color: var(--text-main);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .detail-options-grid {
@@ -624,7 +697,7 @@
       gap: 8px;
       padding: 8px 12px;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 12px;
       background-color: var(--bg-gray);
       color: var(--text-sub);
     }
@@ -636,7 +709,7 @@
     }
 
     .detail-footer-btn-container {
-      padding: 16px 20px;
+      padding: 14px 20px;
       border-top: 1px solid var(--border-light);
       background-color: #fff;
       display: flex;
@@ -645,12 +718,12 @@
 
     .select-place-btn {
       flex: 1;
-      height: 52px;
+      height: 48px;
       border-radius: 8px;
       background-color: var(--naver-green);
       color: #fff;
       border: none;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -660,13 +733,13 @@
     }
 
     .cancel-place-btn {
-      width: 100px;
-      height: 52px;
+      width: 90px;
+      height: 48px;
       border-radius: 8px;
       background-color: #f4f4f5;
       color: #4e4e55;
       border: none;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
@@ -674,7 +747,6 @@
       align-items: center;
     }
 
-    /* 태스크 완료 모달 */
     .completion-modal {
       display: none;
       position: absolute;
@@ -756,7 +828,6 @@
     </div>
 
     <div class="app-body">
-      <!-- 상단 검색창 -->
       <section class="search-section">
         <div class="search-bar">
           <i class="fa-solid fa-arrow-left back-btn"></i>
@@ -768,7 +839,6 @@
         </div>
       </section>
 
-      <!-- 프리셋 칩 + [조건 추가] 버튼 -->
       <section class="filter-section">
         <div class="preset-chips">
           <button class="chip" id="preset-family" data-preset="family">👨‍👩‍👧 가족모임</button>
@@ -778,17 +848,14 @@
         </div>
       </section>
 
-      <!-- 2번 토글형 드롭다운 태그 패널 -->
       <section class="expanded-tags-container" id="expanded-tags-panel">
         <div class="tags-grid" id="tags-grid-container"></div>
       </section>
 
-      <!-- 지도 영역 -->
       <div class="map-container">
         <div id="map"></div>
       </div>
 
-      <!-- 바텀시트 -->
       <div class="bottom-sheet" id="bottom-sheet">
         <div class="sheet-handle-bar" id="sheet-handle">
           <div class="sheet-handle"></div>
@@ -799,7 +866,6 @@
         <div class="places-list" id="places-list-container"></div>
       </div>
 
-      <!-- 상세 모달 -->
       <div class="detail-modal" id="detail-modal">
         <div class="detail-header">
           <img class="detail-header-img" id="detail-img" src="" alt="식당 전경">
@@ -814,7 +880,22 @@
               <span class="detail-category" id="detail-category">일식</span>
             </div>
 
+            <div class="detail-score-box">
+              <span style="color:#f59e0b; font-weight:700;"><i class="fa-solid fa-star"></i> <span
+                  id="detail-rating">4.8</span></span>
+              <span style="color:#94a3b8;">·</span>
+              <span style="color:#64748b;" id="detail-review-count">리뷰 1,200</span>
+            </div>
+
+            <div class="detail-review-highlight" id="detail-highlight-review">
+              "방문자 대표 리뷰가 노출됩니다."
+            </div>
+
             <div class="detail-info-list">
+              <div class="detail-info-item">
+                <i class="fa-solid fa-utensils"></i>
+                <span id="detail-menu" style="font-weight:700; color:#03C75A;">대표메뉴</span>
+              </div>
               <div class="detail-info-item">
                 <i class="fa-solid fa-location-dot"></i>
                 <span id="detail-address">주소 정보</span>
@@ -838,7 +919,6 @@
         </div>
       </div>
 
-      <!-- 완료 모달 -->
       <div class="completion-modal" id="completion-modal">
         <div class="completion-content">
           <div class="completion-icon">🎉</div>
@@ -852,11 +932,9 @@
     </div>
   </div>
 
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    // 최신 웹훅 URL 1회 선언
     const GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxxxeS9qjXCX7MvzAqoZ2kZGk8PkfjgIWO1beC54Ed56Jx5vTijzlE888ChsHbHplzSjQ/exec";
 
     const logData = {
@@ -907,6 +985,10 @@
       {
         "name": "Makke",
         "category": "생선회",
+        "signature_menu": "자연산 막회 (소) 38,000원",
+        "rating": 4.82,
+        "review_count": 890,
+        "highlight_review": "회가 신선하고 특제 초장 양념에 비벼 먹는 야채 조합이 대화하며 술 한잔 곁들이기 최고예요.",
         "address": "서울 광진구 구의동",
         "phone": "0507-1373-1532",
         "latitude": 37.539275,
@@ -917,6 +999,10 @@
       {
         "name": "꽃삼뚜껑 구의역점",
         "category": "육류,고기요리",
+        "signature_menu": "솥뚜껑 꽃삼겹 (180g) 15,000원",
+        "rating": 4.79,
+        "review_count": 1420,
+        "highlight_review": "솥뚜껑에 김치와 미나리를 같이 구워 먹어서 질리지 않고, 주차와 좌석이 넉넉해 가족 식사에 딱입니다.",
         "address": "서울 광진구 구의동",
         "phone": "0507-1473-9245",
         "latitude": 37.538514,
@@ -927,6 +1013,10 @@
       {
         "name": "신선술집 도원 건대 본점",
         "category": "요리주점",
+        "signature_menu": "도원 소고기 전골 24,900원",
+        "rating": 4.88,
+        "review_count": 2150,
+        "highlight_review": "프라이빗한 개별룸이 잘 구비되어 있어서 시끄럽지 않게 회식이나 모임 가지기에 안성맞춤이에요.",
         "address": "서울 광진구 화양동",
         "phone": "0507-1456-0826",
         "latitude": 37.542283,
@@ -937,6 +1027,10 @@
       {
         "name": "미도인 건대",
         "category": "양식",
+        "signature_menu": "미도인 가정식 스테이크 16,800원",
+        "rating": 4.74,
+        "review_count": 3280,
+        "highlight_review": "스테이크가 부드럽고 한상 차림이 정갈해서 친구들이랑 분위기 내며 대화 나누기 좋았어요.",
         "address": "서울 광진구 화양동",
         "phone": "0507-1321-8857",
         "latitude": 37.543085,
@@ -947,6 +1041,10 @@
       {
         "name": "우동키노야 건대점",
         "category": "우동,소바",
+        "signature_menu": "붓가케 우동 9,500원",
+        "rating": 4.68,
+        "review_count": 640,
+        "highlight_review": "직접 뽑는 자가제면이라 면발의 쫄깃함이 남다르고 혼밥이나 조용히 식사하기 편한 분위기예요.",
         "address": "서울 광진구 화양동",
         "phone": "02-2205-5589",
         "latitude": 37.540192,
@@ -957,6 +1055,10 @@
       {
         "name": "탐라육해 건대본점",
         "category": "요리주점",
+        "signature_menu": "한우 육회&딱새우 세트 39,000원",
+        "rating": 4.81,
+        "review_count": 1180,
+        "highlight_review": "제주 딱새우의 단맛과 신선한 육회 퀄리티가 훌륭해서 친구 모임 술자리로 실패가 없는 곳입니다.",
         "address": "서울 광진구 화양동",
         "phone": "0507-1430-2017",
         "latitude": 37.542795,
@@ -967,6 +1069,10 @@
       {
         "name": "희가덕 손만두 건대점",
         "category": "중식당",
+        "signature_menu": "수제 고기손만두 (8개) 7,000원",
+        "rating": 4.62,
+        "review_count": 480,
+        "highlight_review": "얇은 피 안에 육즙 가득한 만두소가 꽉 차 있어 가볍고 든든하게 먹기 좋은 숨은 로컬 맛집입니다.",
         "address": "서울 광진구 자양동",
         "phone": "02-498-0665",
         "latitude": 37.539345,
@@ -977,6 +1083,10 @@
       {
         "name": "건대 고기굽는놈 본점",
         "category": "육류,고기요리",
+        "signature_menu": "당일작업 숯불 소갈비살 16,000원",
+        "rating": 4.87,
+        "review_count": 4210,
+        "highlight_review": "참숯 향 배인 소갈비살이 일품이며, 직원분들이 친절하고 매장이 넓어 단체 회식으로 자주 찾아요.",
         "address": "서울 광진구 화양동",
         "phone": "0507-1330-8821",
         "latitude": 37.542018,
@@ -987,6 +1097,10 @@
       {
         "name": "한우짝갈비살",
         "category": "소고기구이",
+        "signature_menu": "한우 짝갈비살 (100g) 19,000원",
+        "rating": 4.78,
+        "review_count": 920,
+        "highlight_review": "가성비 뛰어난 한우 짝갈비살의 마블링과 육즙이 최고라 가족 모임 식사로 늘 만족스럽습니다.",
         "address": "서울 광진구 구의동",
         "phone": "0507-1301-8835",
         "latitude": 37.540582,
@@ -997,6 +1111,10 @@
       {
         "name": "고이장",
         "category": "요리주점",
+        "signature_menu": "고이장 수육&미나리무침 26,000원",
+        "rating": 4.85,
+        "review_count": 530,
+        "highlight_review": "부드러운 수육과 향긋한 미나리무침 안주가 훌륭하고, 아늑한 분위기에서 조용히 이야기하기 좋습니다.",
         "address": "서울 광진구 자양동",
         "phone": "0507-1416-6408",
         "latitude": 37.537215,
@@ -1007,6 +1125,10 @@
       {
         "name": "띠목훠궈 건대점",
         "category": "중식당",
+        "signature_menu": "무한리필 훠궈 (1인) 19,800원",
+        "rating": 4.69,
+        "review_count": 1340,
+        "highlight_review": "신선한 고기와 다양한 채소, 소스바를 무제한으로 마음껏 즐길 수 있는 건대 최고의 가성비 훠궈집입니다.",
         "address": "서울 광진구 화양동",
         "phone": "0507-1456-7892",
         "latitude": 37.541325,
@@ -1017,6 +1139,10 @@
       {
         "name": "옥화정",
         "category": "육류,고기요리",
+        "signature_menu": "짚불숙성 짚불삼겹살 16,000원",
+        "rating": 4.86,
+        "review_count": 1650,
+        "highlight_review": "짚불 훈연 향이 입혀진 도톰한 삼겹살이 예술이고 개별룸이 있어 쾌적한 회식이 가능해요.",
         "address": "서울 광진구 화양동",
         "phone": "0507-1325-8741",
         "latitude": 37.543412,
@@ -1027,6 +1153,10 @@
       {
         "name": "사토규카츠 건대본점",
         "category": "일식당",
+        "signature_menu": "살치살 규카츠 정식 18,000원",
+        "rating": 4.84,
+        "review_count": 1890,
+        "highlight_review": "개인 화로에 원하는 굽기로 구워 먹는 재미가 있고 겉바속촉 고기 육즙이 아주 풍부합니다.",
         "address": "서울 광진구 화양동",
         "phone": "0507-1366-1946",
         "latitude": 37.541275,
@@ -1037,6 +1167,10 @@
       {
         "name": "성수완당",
         "category": "한식",
+        "signature_menu": "성수완당면 (온면) 10,000원",
+        "rating": 4.83,
+        "review_count": 2740,
+        "highlight_review": "바삭한 가지튀김 토핑과 맑고 깊은 완당 국물이 일품이라 줄 서서 먹는 보람이 있는 곳입니다.",
         "address": "서울 광진구 자양동",
         "phone": "0507-1448-5243",
         "latitude": 37.538521,
@@ -1047,6 +1181,10 @@
       {
         "name": "바인",
         "category": "와인/바",
+        "signature_menu": "감바스 알 아히요 18,000원",
+        "rating": 4.91,
+        "review_count": 420,
+        "highlight_review": "조용하고 감각적인 음악이 흐르는 와인바로, 대화에 집중하기 좋은 편안한 좌석이 매력적이에요.",
         "address": "서울 광진구 화양동",
         "phone": "0507-1439-0285",
         "latitude": 37.541185,
@@ -1057,6 +1195,10 @@
       {
         "name": "쿠우쿠우 블루레일 건대직영점",
         "category": "일식,초밥뷔페",
+        "signature_menu": "프리미엄 회전초밥 (접시당) 1,500원~",
+        "rating": 4.72,
+        "review_count": 2980,
+        "highlight_review": "다양한 종류의 초밥이 신선하게 관리되고, 유아의자와 넓은 좌석이 완비되어 가족 외식 장소로 최고입니다.",
         "address": "서울 광진구 자양동",
         "phone": "0507-1341-6274",
         "latitude": 37.540352,
@@ -1067,6 +1209,10 @@
       {
         "name": "민지슈퍼 건대본점",
         "category": "요리주점",
+        "signature_menu": "매콤 차돌 국물떡볶이 19,000원",
+        "rating": 4.79,
+        "review_count": 870,
+        "highlight_review": "레트로한 감성 포차 분위기에 푸짐한 안주 퀄리티가 좋아 친구들과 늦은 시간까지 부담 없이 즐기기 좋습니다.",
         "address": "서울 광진구 화양동",
         "phone": "0507-1332-2084",
         "latitude": 37.542451,
@@ -1077,6 +1223,10 @@
       {
         "name": "김창훈포차",
         "category": "요리주점",
+        "signature_menu": "곱도리탕 (순살) 28,000원",
+        "rating": 4.82,
+        "review_count": 1520,
+        "highlight_review": "진하고 매콤달콤한 곱도리탕에 소주 한잔 곁들이기 좋고, 단체석과 룸이 마련되어 있어 모임 장소로 좋아요.",
         "address": "서울 광진구 화양동",
         "phone": "0507-1314-2084",
         "latitude": 37.542150,
@@ -1087,6 +1237,10 @@
       {
         "name": "난바다스시",
         "category": "초밥,롤",
+        "signature_menu": "특선 모듬초밥 (12p) 17,000원",
+        "rating": 4.75,
+        "review_count": 780,
+        "highlight_review": "네타가 두툼하고 밥 양과 간이 적당해서 한 판 뚝딱 비우게 되는 실속 있는 초밥 맛집입니다.",
         "address": "서울 광진구 구의동",
         "phone": "0507-1318-9666",
         "latitude": 37.537825,
@@ -1097,6 +1251,10 @@
       {
         "name": "코시 건대점",
         "category": "우동,소바",
+        "signature_menu": "수제 덴뿌라 우동 11,000원",
+        "rating": 4.81,
+        "review_count": 910,
+        "highlight_review": "바삭한 튀김과 깔끔하고 깊은 우동 국물이 훌륭하며, 유아의자와 전용 주차가 가능해 외식하기 편리합니다.",
         "address": "서울 광진구 자양동",
         "phone": "0507-1358-2587",
         "latitude": 37.539851,
@@ -1107,6 +1265,10 @@
       {
         "name": "탄토탄토",
         "category": "이탈리아음식",
+        "signature_menu": "트러플 버섯 크림 뇨끼 17,000원",
+        "rating": 4.89,
+        "review_count": 1130,
+        "highlight_review": "진한 트러플 풍미와 쫀득한 뇨끼의 조화가 예술이며, 분위기가 감성적이어서 친구 모임이나 데이트로 추천해요.",
         "address": "서울 광진구 화양동",
         "phone": "02-2039-2915",
         "latitude": 37.542915,
@@ -1117,6 +1279,10 @@
       {
         "name": "굴림샤브&콩국수",
         "category": "한식",
+        "signature_menu": "굴림만두 소고기 샤브 14,000원",
+        "rating": 4.77,
+        "review_count": 860,
+        "highlight_review": "피 없는 굴림만두와 담백하고 시원한 샤브 육수가 어우러져 남녀노소 가족 모두 건강하게 즐길 수 있습니다.",
         "address": "서울 광진구 화양동",
         "phone": "0507-1336-2771",
         "latitude": 37.548124,
@@ -1160,6 +1326,10 @@
     const detailImg = document.getElementById('detail-img');
     const detailName = document.getElementById('detail-name');
     const detailCategory = document.getElementById('detail-category');
+    const detailRating = document.getElementById('detail-rating');
+    const detailReviewCount = document.getElementById('detail-review-count');
+    const detailHighlightReview = document.getElementById('detail-highlight-review');
+    const detailMenu = document.getElementById('detail-menu');
     const detailAddress = document.getElementById('detail-address');
     const detailPhone = document.getElementById('detail-phone');
     const detailOptionsGrid = document.getElementById('detail-options-grid');
@@ -1212,7 +1382,6 @@
         });
       });
 
-      // [+ 조건 추가] 토글 드롭다운
       toggleTagsBtn.addEventListener('click', () => {
         const isOpen = expandedTagsPanel.classList.toggle('open');
         toggleTagsBtn.classList.toggle('active', isOpen);
@@ -1255,7 +1424,6 @@
           activeFilters[tag] = true;
         });
 
-        // 프리셋 클릭 시 태그 패널을 자동으로 열어 적용된 세부 조건을 한눈에 확인 가능하도록 처리
         expandedTagsPanel.classList.add('open');
         toggleTagsBtn.classList.add('active');
       }
@@ -1429,9 +1597,17 @@
             <img class="place-img" src="${place.image_url}" alt="${place.name}">
           </div>
           <div class="place-info">
-            <div class="place-title-row">
-              <div class="place-name">${place.name}</div>
-              <div class="place-category">${place.category}</div>
+            <div>
+              <div class="place-title-row">
+                <span class="place-name">${place.name}</span>
+                <span class="place-category">${place.category}</span>
+              </div>
+              <div class="place-score-row">
+                <span class="place-score"><i class="fa-solid fa-star"></i> ${place.rating}</span>
+                <span class="place-reviews">리뷰 ${place.review_count.toLocaleString()}</span>
+              </div>
+              <div class="place-menu-row">🍴 ${place.signature_menu}</div>
+              <div class="place-review-snippet">"${place.highlight_review}"</div>
             </div>
             <div class="place-tags">
               ${badgesHtml}
@@ -1464,6 +1640,10 @@
       detailImg.src = place.image_url;
       detailName.textContent = place.name;
       detailCategory.textContent = place.category;
+      detailRating.textContent = place.rating;
+      detailReviewCount.textContent = `리뷰 ${place.review_count.toLocaleString()}개`;
+      detailHighlightReview.textContent = `"${place.highlight_review}"`;
+      detailMenu.textContent = place.signature_menu;
       detailAddress.textContent = place.address;
       detailPhone.textContent = place.phone;
 
