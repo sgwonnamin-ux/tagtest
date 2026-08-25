@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>네이버 지도 - 건대입구역 맛집 탐색</title>
-  
+
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  
+
   <!-- Google Fonts & Icon -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@400;600;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+
   <style>
     /* 기본 테마 및 레이아웃 설정 */
     :root {
@@ -67,6 +70,7 @@
       body {
         background-color: #fff;
       }
+
       .phone-container {
         max-width: 100%;
         height: 100vh;
@@ -138,7 +142,8 @@
       border: none;
       outline: none;
       background: transparent;
-      pointer-events: none; /* 단순 목업용으로 비활성화 */
+      pointer-events: none;
+      /* 단순 목업용으로 비활성화 */
     }
 
     .search-icons {
@@ -375,7 +380,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      cursor: pointer; /* 헤더 영역도 클릭 가능하게 변경 */
+      cursor: pointer;
+      /* 헤더 영역도 클릭 가능하게 변경 */
     }
 
     .sheet-header-title {
@@ -419,6 +425,7 @@
       0% {
         background-color: rgba(3, 199, 90, 0.15);
       }
+
       100% {
         background-color: transparent;
       }
@@ -542,19 +549,27 @@
       width: 100%;
       height: 100%;
       background-color: #fff;
-      z-index: 300; /* 상단바보다 위에 노출 */
-      display: none; /* 기본 상태 완전 숨김 */
+      z-index: 300;
+      /* 상단바보다 위에 노출 */
+      display: none;
+      /* 기본 상태 완전 숨김 */
       flex-direction: column;
     }
 
     .detail-modal.open {
-      display: flex; /* 열릴 때만 노출 */
+      display: flex;
+      /* 열릴 때만 노출 */
       animation: slideUp 0.25s ease-out;
     }
 
     @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
     }
 
     .detail-header {
@@ -734,14 +749,16 @@
 
     /* 태스크 완료 모달 팝업 */
     .completion-modal {
-      display: none; /* 기본 숨김 */
+      display: none;
+      /* 기본 숨김 */
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.6);
-      z-index: 2000; /* 최상위 노출 */
+      z-index: 2000;
+      /* 최상위 노출 */
       justify-content: center;
       align-items: center;
     }
@@ -753,13 +770,20 @@
       width: 85%;
       max-width: 340px;
       text-align: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     .completion-icon {
@@ -811,11 +835,12 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- 모바일 디바이스 프레임 -->
   <div class="phone-container">
-    
+
     <!-- 상단바 목업 -->
     <div class="phone-header-bar">
       <div class="time-status">12:30</div>
@@ -825,10 +850,10 @@
         <i class="fa-solid fa-battery-three-quarters"></i>
       </div>
     </div>
-    
+
     <!-- 메인 앱 바디 -->
     <div class="app-body">
-      
+
       <!-- 상단 검색창 -->
       <section class="search-section">
         <div class="search-bar">
@@ -890,7 +915,7 @@
               <h2 class="detail-name" id="detail-name">식당 이름</h2>
               <span class="detail-category" id="detail-category">일식</span>
             </div>
-            
+
             <div class="detail-info-list">
               <div class="detail-info-item">
                 <i class="fa-solid fa-location-dot"></i>
@@ -910,7 +935,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="detail-footer-btn-container">
           <button class="cancel-place-btn" id="cancel-place-btn">닫기</button>
           <button class="select-place-btn" id="select-place-btn">이 장소로 선택</button>
@@ -989,7 +1014,7 @@
       "parking", "group_seats", "high_chair", "room", "reservation",
       "conversation", "comfortable_seat", "pet_friendly", "liquor_available", "late_night_early"
     ];
-    
+
     // 10개 태그 전체 한글 가나다순 정렬 배치
     const sortedExtendedTagKeys = [...extendedTagKeys].sort((a, b) => {
       return tagMeta[a].localeCompare(tagMeta[b], 'ko');
@@ -1465,7 +1490,7 @@
     let map = null;            // Leaflet 지도 객체
     let markers = [];          // 지도 상에 표시되고 있는 마커 배열
     let currentPreset = null;  // 현재 선택된 프리셋 ('family', 'friends', 'dinner', null)
-    
+
     // 개별 태그의 ON/OFF 토글 상태 (전체 10개 태그 대상)
     const activeFilters = {
       parking: false,
@@ -1496,7 +1521,7 @@
     const tagsGridContainer = document.getElementById('tags-grid-container');
     const matchCountEl = document.getElementById('match-count');
     const placesListContainer = document.getElementById('places-list-container');
-    
+
     const detailModal = document.getElementById('detail-modal');
     const detailImg = document.getElementById('detail-img');
     const detailName = document.getElementById('detail-name');
@@ -1593,7 +1618,7 @@
     // ----------------------------------------------------
     // 5. 핵심 비즈니스 로직 (프리셋 & 태그 제어)
     // ----------------------------------------------------
-    
+
     // 5-1. 프리셋 선택 및 변경 처리
     function selectPreset(presetKey) {
       // 0개 매칭 분기에서 복구 중인 경우를 감지하기 위함
@@ -1609,7 +1634,7 @@
         // 프리셋 선택 변경 시: 이전의 토글 상태는 초기화
         currentPreset = presetKey;
         logData.selectedPreset = translatePresetName(presetKey);
-        
+
         // 필터 리셋 후 해당 프리셋 기본 조건만 ON
         Object.keys(activeFilters).forEach(k => activeFilters[k] = false);
         const presetTags = presetConfig[presetKey];
@@ -1645,10 +1670,10 @@
     // 5-2. 개별 태그 온/오프 토글
     function toggleIndividualTag(tagKey) {
       const wasZeroResult = (getFilteredPlaces().length === 0);
-      
+
       // 토글 상태 변경
       activeFilters[tagKey] = !activeFilters[tagKey];
-      
+
       // 행동 로그 누적 기록
       logData.tagToggleLogs.push({
         timestamp: new Date().toISOString(),
@@ -1696,7 +1721,7 @@
     function getFilteredPlaces() {
       // 활성화된 태그 리스트 추출
       const activeTagKeys = Object.keys(activeFilters).filter(k => activeFilters[k]);
-      
+
       // 필터링 적용 (AND 조건)
       return placesData.filter(place => {
         return activeTagKeys.every(tag => place.parsed_options[tag] === true);
@@ -1706,7 +1731,7 @@
     // 6-2. 대시보드(지도 마커 + 하단 리스트) 일괄 업데이트
     function updateDashboard() {
       const filtered = getFilteredPlaces();
-      
+
       // 0건 예외 기록 트리거
       if (filtered.length === 0) {
         logData.zeroResultTriggered = true;
@@ -1758,7 +1783,7 @@
         });
 
         const marker = L.marker([place.latitude, place.longitude], { icon: customIcon }).addTo(map);
-        
+
         // 마커 클릭 시 동작
         marker.on('click', () => {
           // 마커 하이라이트 전환
@@ -1768,13 +1793,13 @@
           });
           const currentEl = marker.getElement();
           if (currentEl) currentEl.classList.add('selected-pin');
-          
+
           // 마커 클릭 시 바텀시트 자동 펼침
           const bottomSheet = document.getElementById('bottom-sheet');
           if (bottomSheet) {
             bottomSheet.classList.add('expanded');
           }
-          
+
           // 리스트 스크롤 포커싱 및 카드 하이라이트 효과
           focusPlaceInList(place.name);
         });
@@ -1814,7 +1839,7 @@
         const card = document.createElement('div');
         card.className = 'place-card';
         card.id = `place-card-${place.name.replace(/\s+/g, '-')}`;
-        
+
         // 매칭 배지 HTML 빌드 (현재 켜져 있는 필터 조건과 일치하면 matched 하이라이트 부여)
         let badgesHtml = '';
         Object.keys(place.parsed_options).forEach(key => {
@@ -1855,10 +1880,10 @@
     function focusPlaceInList(placeName) {
       const cardId = `place-card-${placeName.replace(/\s+/g, '-')}`;
       const cardEl = document.getElementById(cardId);
-      
+
       if (cardEl) {
         cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        
+
         // 이전 하이라이팅 제거 후 재시작
         document.querySelectorAll('.place-card').forEach(c => c.classList.remove('highlighted'));
         cardEl.classList.add('highlighted');
@@ -1868,7 +1893,7 @@
     // 7-2. 장소 상세보기 모달 오픈
     function openDetailModal(place) {
       currentPlaceInDetail = place;
-      
+
       // 모달 필드 동적 채우기
       detailImg.src = place.image_url;
       detailName.textContent = place.name;
@@ -1906,7 +1931,7 @@
         logData.detailStayDurationSec += stayDuration;
         detailOpenTime = null;
       }
-      
+
       // 모달 닫기
       detailModal.classList.remove('open');
       detailModal.style.display = 'none';
@@ -1916,6 +1941,7 @@
     // ----------------------------------------------------
     // 8. 최종 선택 및 행동 로그 전송 (구글 시트 연동)
     // ----------------------------------------------------
+
     function completeTaskWithSelection() {
       if (!currentPlaceInDetail) return;
 
@@ -1936,15 +1962,15 @@
         logData.zeroResultRecoveryAction = "relaxed_filter";
       }
 
-      // 1. 구글 스프레드시트로 로그 자동 전송 (CORS no-cors 모드)
+      // 1. 구글 스프레드시트로 로그 자동 전송 (text/plain 방식)
       fetch(GOOGLE_WEBHOOK_URL, {
         method: "POST",
         mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(logData)
       })
-      .then(() => console.log("구글 스프레드시트로 로그 전송 완료"))
-      .catch(err => console.error("Webhook Error:", err));
+        .then(() => console.log("구글 스프레드시트로 로그 전송 완료"))
+        .catch(err => console.error("Webhook Error:", err));
 
       // 2. 상세보기 모달 숨기기
       detailModal.classList.remove('open');
@@ -1956,9 +1982,16 @@
 
     // 인앱 완료 모달 노출 로직
     function showCompletionModal(shopName) {
-      completionShopName.textContent = shopName;
-      completionModal.style.display = 'flex';
+      if (typeof completionShopName !== 'undefined' && completionShopName) {
+        completionShopName.textContent = shopName;
+      }
+      if (typeof completionModal !== 'undefined' && completionModal) {
+        completionModal.style.display = 'flex';
+      } else {
+        alert("선택이 완료되었습니다: " + shopName);
+      }
     }
   </script>
 </body>
+
 </html>
