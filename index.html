@@ -144,7 +144,7 @@
 
     .filter-section {
       background-color: #fff;
-      padding: 4px 16px 12px 16px;
+      padding: 4px 16px 10px 16px;
       z-index: 110;
       border-bottom: 1px solid var(--border-light);
     }
@@ -231,6 +231,35 @@
       font-weight: 700;
     }
 
+    /* 플로팅 범례 칩 (마커 설명) */
+    .legend-floating-bar {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(6px);
+      padding: 6px 14px;
+      border-radius: 20px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
     .map-container {
       flex: 1;
       position: relative;
@@ -239,14 +268,14 @@
 
     #map { width: 100%; height: 100%; }
 
-    /* 말풍선 마커 (완전 일치: 그린 / 부분 일치: 코랄) */
+    /* 말풍선 마커 (완전/부분 일치) */
     .custom-marker { background: none; border: none; }
     .marker-bubble {
       position: relative;
       background-color: #fff;
       border: 2px solid var(--naver-green);
       color: var(--text-main);
-      padding: 4px 10px;
+      padding: 4px 9px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 700;
@@ -255,12 +284,28 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 4px;
       transform: translate(-50%, -100%);
       width: auto;
       min-width: 50px;
-      max-width: 150px;
+      max-width: 160px;
       text-overflow: ellipsis;
       overflow: hidden;
+    }
+
+    .marker-bubble .badge-icon {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    .marker-bubble .badge-icon.full {
+      background: var(--naver-green);
+      color: #fff;
+    }
+    .marker-bubble .badge-icon.partial {
+      background: var(--coral);
+      color: #fff;
     }
 
     .marker-bubble::after {
@@ -290,7 +335,7 @@
       z-index: 1;
     }
 
-    /* 부분 일치 핀 스타일 */
+    /* 부분 일치 핀 */
     .custom-marker.partial-pin .marker-bubble {
       border-color: var(--coral);
       color: #991b1b;
@@ -299,7 +344,7 @@
       border-color: var(--coral) transparent;
     }
 
-    /* 선택된 핀 스타일 */
+    /* 선택된 핀 */
     .custom-marker.selected-pin .marker-bubble {
       background-color: #1e293b;
       border-color: #0f172a;
@@ -310,13 +355,13 @@
     .custom-marker.selected-pin .marker-bubble::after { border-color: #0f172a transparent; }
     .custom-marker.selected-pin .marker-bubble::before { border-color: #1e293b transparent; }
 
-    /* 제스처 지원 바텀시트 */
+    /* 바텀시트 */
     .bottom-sheet {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 70%;
+      height: 72%;
       max-height: 80vh;
       background-color: #fff;
       border-radius: 20px 20px 0 0;
@@ -370,10 +415,36 @@
     .places-list {
       flex: 1;
       overflow-y: auto;
-      padding: 0 16px 20px 16px;
+      padding: 0 16px 70px 16px;
     }
 
-    /* 결과 그룹 헤더 (모두 일치 / 일부 일치) */
+    /* 플로팅 FAB 버튼 ([지도보기] / [목록보기]) */
+    .view-toggle-fab {
+      position: absolute;
+      bottom: 84px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 120;
+      background: #1e293b;
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .view-toggle-fab:hover {
+      background: #0f172a;
+      transform: translateX(-50%) scale(1.04);
+    }
+
+    /* 결과 그룹 헤더 */
     .result-group-title {
       font-size: 13px;
       font-weight: 700;
@@ -854,9 +925,23 @@
       </section>
 
       <div class="map-container">
+        <!-- 상단 플로팅 범례 칩 (마커 구분 설명) -->
+        <div class="legend-floating-bar" id="legend-bar">
+          <div class="legend-item"><span class="legend-dot" style="background:var(--naver-green);"></span> 완전일치 <span id="legend-full-count" style="color:var(--naver-green);">0</span></div>
+          <span style="color:#cbd5e1;">|</span>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--coral);"></span> 부분일치 <span id="legend-partial-count" style="color:var(--coral);">0</span></div>
+        </div>
+
         <div id="map"></div>
       </div>
 
+      <!-- 플로팅 토글 버튼 (지도보기 / 목록보기) -->
+      <button class="view-toggle-fab" id="view-toggle-fab">
+        <i class="fa-solid fa-map"></i>
+        <span id="view-toggle-text">지도 보기</span>
+      </button>
+
+      <!-- 바텀시트 -->
       <div class="bottom-sheet" id="bottom-sheet">
         <div class="sheet-handle-bar" id="sheet-handle">
           <div class="sheet-handle"></div>
@@ -868,6 +953,7 @@
         <div class="places-list" id="places-list-container"></div>
       </div>
 
+      <!-- 상세 모달 -->
       <div class="detail-modal" id="detail-modal">
         <div class="detail-header">
           <img class="detail-header-img" id="detail-img" src="" alt="식당 전경">
@@ -1342,6 +1428,12 @@
     const completionShopName = document.getElementById('completion-shop-name');
     const completionConfirmBtn = document.getElementById('completion-confirm-btn');
 
+    // 플로팅 뷰 토글 FAB 버튼 요소
+    const viewToggleFab = document.getElementById('view-toggle-fab');
+    const viewToggleText = document.getElementById('view-toggle-text');
+    const bottomSheet = document.getElementById('bottom-sheet');
+    const sheetArrow = document.getElementById('sheet-arrow');
+
     window.addEventListener('DOMContentLoaded', () => {
       initMap();
       renderExtendedTags();
@@ -1396,28 +1488,42 @@
       completionConfirmBtn.addEventListener('click', () => {
         completionModal.style.display = 'none';
       });
+
+      // 플로팅 FAB 클릭 시 바텀시트 펼침/접힘 토글
+      viewToggleFab.addEventListener('click', () => {
+        if (bottomSheet.classList.contains('expanded')) {
+          setBottomSheetExpanded(false);
+        } else {
+          setBottomSheetExpanded(true);
+        }
+      });
+    }
+
+    // 바텀시트 상태 동기화 함수
+    function setBottomSheetExpanded(isExpanded) {
+      if (isExpanded) {
+        bottomSheet.classList.add('expanded');
+        sheetArrow.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        viewToggleFab.innerHTML = '<i class="fa-solid fa-map"></i><span>지도 보기</span>';
+      } else {
+        bottomSheet.classList.remove('expanded');
+        sheetArrow.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        const matchCount = document.getElementById('match-count').textContent;
+        viewToggleFab.innerHTML = `<i class="fa-solid fa-list-ul"></i><span>목록 보기 (${matchCount})</span>`;
+      }
     }
 
     // 터치/마우스 제스처 바텀시트
     function setupBottomSheetGestures() {
-      const bottomSheet = document.getElementById('bottom-sheet');
       const sheetHandleBar = document.getElementById('sheet-handle');
       const sheetHeader = document.getElementById('sheet-header');
-      const sheetArrow = document.getElementById('sheet-arrow');
 
       let startY = 0;
       let isDragging = false;
 
-      function toggleSheet() {
-        bottomSheet.classList.toggle('expanded');
-        if (bottomSheet.classList.contains('expanded')) {
-          sheetArrow.classList.replace('fa-chevron-up', 'fa-chevron-down');
-        } else {
-          sheetArrow.classList.replace('fa-chevron-down', 'fa-chevron-up');
-        }
-      }
-
-      sheetHeader.addEventListener('click', toggleSheet);
+      sheetHeader.addEventListener('click', () => {
+        setBottomSheetExpanded(!bottomSheet.classList.contains('expanded'));
+      });
 
       sheetHandleBar.addEventListener('pointerdown', (e) => {
         startY = e.clientY;
@@ -1428,12 +1534,10 @@
       sheetHandleBar.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
         const deltaY = e.clientY - startY;
-        if (deltaY < -40) {
-          bottomSheet.classList.add('expanded');
-          sheetArrow.classList.replace('fa-chevron-up', 'fa-chevron-down');
-        } else if (deltaY > 40) {
-          bottomSheet.classList.remove('expanded');
-          sheetArrow.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        if (deltaY < -35) {
+          setBottomSheetExpanded(true);
+        } else if (deltaY > 35) {
+          setBottomSheetExpanded(false);
         }
       });
 
@@ -1534,13 +1638,12 @@
         });
 
         if (matchCount === activeKeys.length) {
-          full.push(place);
+          full.push({ ...place, matchCount, totalActive: activeKeys.length });
         } else if (matchCount > 0) {
-          partial.push({ place, matchCount });
+          partial.push({ place: { ...place, matchCount, totalActive: activeKeys.length }, matchCount });
         }
       });
 
-      // 부분 일치는 많이 일치한 순서대로 정렬
       partial.sort((a, b) => b.matchCount - a.matchCount);
 
       return {
@@ -1557,8 +1660,27 @@
       }
 
       updateUIFilters();
+      updateLegendBar(full.length, partial.length);
       updateMapMarkers(full, partial);
       updatePlacesList(full, partial);
+
+      // FAB 버튼 문구 동기화
+      if (!bottomSheet.classList.contains('expanded')) {
+        viewToggleFab.innerHTML = `<i class="fa-solid fa-list-ul"></i><span>목록 보기 (${full.length})</span>`;
+      }
+    }
+
+    function updateLegendBar(fullCount, partialCount) {
+      const legendBar = document.getElementById('legend-bar');
+      const activeKeys = Object.keys(activeFilters).filter(k => activeFilters[k]);
+
+      if (activeKeys.length > 0) {
+        legendBar.style.display = 'flex';
+        document.getElementById('legend-full-count').textContent = fullCount;
+        document.getElementById('legend-partial-count').textContent = partialCount;
+      } else {
+        legendBar.style.display = 'none';
+      }
     }
 
     function updateUIFilters() {
@@ -1582,17 +1704,19 @@
       });
     }
 
+    // 마커 생성: 완전 일치는 ✔ 표기, 부분 일치는 2/3 표기
     function updateMapMarkers(fullPlaces, partialPlaces) {
       markers.forEach(m => map.removeLayer(m));
       markers = [];
 
       const activeKeys = Object.keys(activeFilters).filter(k => activeFilters[k]);
 
-      // 1. 완전 일치 마커 렌더링 (그린)
+      // 1. 완전 일치 마커 (✔ 표기)
       fullPlaces.forEach(place => {
+        const badgeHTML = activeKeys.length > 0 ? `<span class="badge-icon full">✔</span>` : '';
         const customIcon = L.divIcon({
           className: 'custom-marker',
-          html: `<div class="marker-bubble">${place.name}</div>`,
+          html: `<div class="marker-bubble">${badgeHTML}<span>${place.name}</span></div>`,
           iconSize: null,
           iconAnchor: [30, 30]
         });
@@ -1600,19 +1724,20 @@
         const marker = L.marker([place.latitude, place.longitude], { icon: customIcon }).addTo(map);
         marker.on('click', () => {
           highlightSelectedPin(marker);
-          document.getElementById('bottom-sheet').classList.add('expanded');
+          setBottomSheetExpanded(true);
           focusPlaceInList(place.name);
         });
         marker.placeName = place.name;
         markers.push(marker);
       });
 
-      // 2. 부분 일치 마커 렌더링 (필터가 켜져 있을 때만 코랄색 핀으로 서브 노출)
+      // 2. 부분 일치 마커 (2/3 표기)
       if (activeKeys.length > 0) {
         partialPlaces.forEach(place => {
+          const badgeHTML = `<span class="badge-icon partial">${place.matchCount}/${place.totalActive}</span>`;
           const customIcon = L.divIcon({
             className: 'custom-marker partial-pin',
-            html: `<div class="marker-bubble"><small style="font-size:9px; color:#ef6255; margin-right:3px;">●</small>${place.name}</div>`,
+            html: `<div class="marker-bubble">${badgeHTML}<span>${place.name}</span></div>`,
             iconSize: null,
             iconAnchor: [30, 30]
           });
@@ -1620,7 +1745,7 @@
           const marker = L.marker([place.latitude, place.longitude], { icon: customIcon }).addTo(map);
           marker.on('click', () => {
             highlightSelectedPin(marker);
-            document.getElementById('bottom-sheet').classList.add('expanded');
+            setBottomSheetExpanded(true);
             focusPlaceInList(place.name);
           });
           marker.placeName = place.name;
@@ -1654,7 +1779,6 @@
         }
       });
 
-      // 부분 일치일 경우 미충족 태그 표시
       if (isPartial) {
         activeKeys.forEach(tag => {
           if (!place.parsed_options[tag]) {
@@ -1694,7 +1818,7 @@
       placesListContainer.innerHTML = '';
       const activeKeys = Object.keys(activeFilters).filter(k => activeFilters[k]);
 
-      // 1. 조건을 모두 만족하는 그룹
+      // 1. 완전 일치 그룹
       if (fullPlaces.length > 0) {
         if (activeKeys.length > 0) {
           const groupHeader = document.createElement('div');
@@ -1707,7 +1831,6 @@
           placesListContainer.insertAdjacentHTML('beforeend', createPlaceCardHTML(place, false));
         });
       } else {
-        // 완전 일치 0건 시 dead-end 방지 안내
         const emptyDiv = document.createElement('div');
         emptyDiv.className = 'empty-result-container';
         emptyDiv.innerHTML = `
@@ -1718,7 +1841,7 @@
         placesListContainer.appendChild(emptyDiv);
       }
 
-      // 2. 일부 조건 만족 그룹 (태그가 켜져 있고 대안 매장이 있을 때)
+      // 2. 부분 일치 그룹
       if (activeKeys.length > 0 && partialPlaces.length > 0) {
         const partialGroupHeader = document.createElement('div');
         partialGroupHeader.className = 'result-group-title partial';
