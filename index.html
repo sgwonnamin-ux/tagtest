@@ -20,6 +20,8 @@
       --naver-green: #03C75A;
       --naver-green-dark: #02b34f;
       --naver-green-light: #e8f9f0;
+      --coral: #ef6255;
+      --coral-light: #fff0ee;
       --bg-gray: #f4f6fa;
       --text-main: #1e1e23;
       --text-sub: #707077;
@@ -62,10 +64,7 @@
     }
 
     @media (max-width: 480px) {
-      body {
-        background-color: #fff;
-      }
-
+      body { background-color: #fff; }
       .phone-container {
         max-width: 100%;
         height: 100vh;
@@ -89,9 +88,7 @@
       border-bottom: 1px solid var(--border-light);
     }
 
-    .phone-header-bar .status-icons i {
-      margin-left: 5px;
-    }
+    .phone-header-bar .status-icons i { margin-left: 5px; }
 
     .app-body {
       flex: 1;
@@ -160,10 +157,7 @@
       padding-bottom: 4px;
       scrollbar-width: none;
     }
-
-    .preset-chips::-webkit-scrollbar {
-      display: none;
-    }
+    .preset-chips::-webkit-scrollbar { display: none; }
 
     .chip {
       display: inline-flex;
@@ -191,15 +185,11 @@
       background-color: #f5f5f7;
       border-color: #e5e5eb;
     }
-
     .chip-add i {
       font-size: 11px;
       transition: transform 0.2s;
     }
-
-    .chip-add.active i {
-      transform: rotate(45deg);
-    }
+    .chip-add.active i { transform: rotate(45deg); }
 
     .expanded-tags-container {
       max-height: 0;
@@ -247,16 +237,10 @@
       z-index: 10;
     }
 
-    #map {
-      width: 100%;
-      height: 100%;
-    }
+    #map { width: 100%; height: 100%; }
 
-    .custom-marker {
-      background: none;
-      border: none;
-    }
-
+    /* 말풍선 마커 (완전 일치: 그린 / 부분 일치: 코랄) */
+    .custom-marker { background: none; border: none; }
     .marker-bubble {
       position: relative;
       background-color: #fff;
@@ -306,36 +290,42 @@
       z-index: 1;
     }
 
+    /* 부분 일치 핀 스타일 */
+    .custom-marker.partial-pin .marker-bubble {
+      border-color: var(--coral);
+      color: #991b1b;
+    }
+    .custom-marker.partial-pin .marker-bubble::after {
+      border-color: var(--coral) transparent;
+    }
+
+    /* 선택된 핀 스타일 */
     .custom-marker.selected-pin .marker-bubble {
-      background-color: #e11d48;
-      border-color: #be123c;
+      background-color: #1e293b;
+      border-color: #0f172a;
       color: #fff;
       z-index: 999;
       transform: translate(-50%, -100%) scale(1.1);
     }
+    .custom-marker.selected-pin .marker-bubble::after { border-color: #0f172a transparent; }
+    .custom-marker.selected-pin .marker-bubble::before { border-color: #1e293b transparent; }
 
-    .custom-marker.selected-pin .marker-bubble::after {
-      border-color: #be123c transparent;
-    }
-
-    .custom-marker.selected-pin .marker-bubble::before {
-      border-color: #e11d48 transparent;
-    }
-
+    /* 제스처 지원 바텀시트 */
     .bottom-sheet {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 420px;
+      height: 70%;
+      max-height: 80vh;
       background-color: #fff;
       border-radius: 20px 20px 0 0;
       box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
       z-index: 105;
       display: flex;
       flex-direction: column;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      transform: translateY(calc(100% - 64px));
+      transform: translateY(calc(100% - 68px));
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .bottom-sheet.expanded {
@@ -343,18 +333,20 @@
     }
 
     .sheet-handle-bar {
-      height: 24px;
+      height: 26px;
       display: flex;
       justify-content: center;
       align-items: center;
-      cursor: pointer;
+      cursor: grab;
+      touch-action: none;
     }
+    .sheet-handle-bar:active { cursor: grabbing; }
 
     .sheet-handle {
-      width: 36px;
-      height: 4px;
-      background-color: #e0e0e6;
-      border-radius: 2px;
+      width: 40px;
+      height: 4.5px;
+      background-color: #d1d5db;
+      border-radius: 3px;
     }
 
     .sheet-header {
@@ -370,7 +362,6 @@
       color: var(--text-sub);
       font-weight: 500;
     }
-
     .sheet-header-title span {
       color: var(--naver-green);
       font-weight: 700;
@@ -382,6 +373,24 @@
       padding: 0 16px 20px 16px;
     }
 
+    /* 결과 그룹 헤더 (모두 일치 / 일부 일치) */
+    .result-group-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      margin: 14px 0 8px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .result-group-title span {
+      color: var(--naver-green);
+      font-weight: 800;
+    }
+    .result-group-title.partial span {
+      color: var(--coral);
+    }
+
     .place-card {
       display: flex;
       padding: 14px 0;
@@ -390,10 +399,7 @@
       gap: 14px;
       border-radius: 8px;
     }
-
-    .place-card:last-child {
-      border-bottom: none;
-    }
+    .place-card:last-child { border-bottom: none; }
 
     .place-img-wrapper {
       width: 92px;
@@ -447,7 +453,6 @@
       font-size: 12px;
       margin-top: 2px;
     }
-
     .place-score {
       color: #f59e0b;
       font-weight: 700;
@@ -455,11 +460,7 @@
       align-items: center;
       gap: 2px;
     }
-
-    .place-reviews {
-      color: var(--text-muted);
-      font-size: 11px;
-    }
+    .place-reviews { color: var(--text-muted); font-size: 11px; }
 
     .place-menu-row {
       font-size: 12px;
@@ -510,36 +511,43 @@
       font-weight: 700 !important;
     }
 
+    .tag-badge.missing {
+      background-color: var(--coral-light) !important;
+      color: var(--coral) !important;
+    }
+
     .empty-result-container {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 240px;
+      padding: 28px 16px;
       text-align: center;
-      padding: 20px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      margin: 10px 0;
     }
 
     .empty-icon {
-      font-size: 40px;
+      font-size: 32px;
       color: var(--text-muted);
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .empty-message {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-sub);
-      margin-bottom: 20px;
+      margin-bottom: 14px;
       line-height: 1.5;
     }
 
     .reset-btn {
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 20px;
       background-color: var(--naver-green);
       color: #fff;
       border: none;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(3, 199, 90, 0.2);
@@ -563,13 +571,8 @@
     }
 
     @keyframes slideUp {
-      from {
-        transform: translateY(100%);
-      }
-
-      to {
-        transform: translateY(0);
-      }
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
     }
 
     .detail-header {
@@ -674,9 +677,7 @@
       margin-top: 3px;
     }
 
-    .detail-options-section {
-      margin-bottom: 20px;
-    }
+    .detail-options-section { margin-bottom: 20px; }
 
     .detail-section-title {
       font-size: 14px;
@@ -860,8 +861,9 @@
         <div class="sheet-handle-bar" id="sheet-handle">
           <div class="sheet-handle"></div>
         </div>
-        <div class="sheet-header">
+        <div class="sheet-header" id="sheet-header">
           <div class="sheet-header-title">검색결과 <span id="match-count">0</span>건</div>
+          <i class="fa-solid fa-chevron-up" id="sheet-arrow" style="font-size:12px; color:#8f95a0;"></i>
         </div>
         <div class="places-list" id="places-list-container"></div>
       </div>
@@ -881,8 +883,7 @@
             </div>
 
             <div class="detail-score-box">
-              <span style="color:#f59e0b; font-weight:700;"><i class="fa-solid fa-star"></i> <span
-                  id="detail-rating">4.8</span></span>
+              <span style="color:#f59e0b; font-weight:700;"><i class="fa-solid fa-star"></i> <span id="detail-rating">4.8</span></span>
               <span style="color:#94a3b8;">·</span>
               <span style="color:#64748b;" id="detail-review-count">리뷰 1,200</span>
             </div>
@@ -1346,6 +1347,7 @@
       renderExtendedTags();
       updateDashboard();
       setupEventListeners();
+      setupBottomSheetGestures();
     });
 
     function initMap() {
@@ -1387,17 +1389,6 @@
         toggleTagsBtn.classList.toggle('active', isOpen);
       });
 
-      const bottomSheet = document.getElementById('bottom-sheet');
-      const sheetHandle = document.getElementById('sheet-handle');
-      const sheetHeader = document.querySelector('.sheet-header');
-
-      function toggleBottomSheet() {
-        bottomSheet.classList.toggle('expanded');
-      }
-
-      sheetHandle.addEventListener('click', toggleBottomSheet);
-      sheetHeader.addEventListener('click', toggleBottomSheet);
-
       closeModalBtn.addEventListener('click', closeDetailModal);
       cancelPlaceBtn.addEventListener('click', closeDetailModal);
       selectPlaceBtn.addEventListener('click', completeTaskWithSelection);
@@ -1407,8 +1398,51 @@
       });
     }
 
+    // 터치/마우스 제스처 바텀시트
+    function setupBottomSheetGestures() {
+      const bottomSheet = document.getElementById('bottom-sheet');
+      const sheetHandleBar = document.getElementById('sheet-handle');
+      const sheetHeader = document.getElementById('sheet-header');
+      const sheetArrow = document.getElementById('sheet-arrow');
+
+      let startY = 0;
+      let isDragging = false;
+
+      function toggleSheet() {
+        bottomSheet.classList.toggle('expanded');
+        if (bottomSheet.classList.contains('expanded')) {
+          sheetArrow.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        } else {
+          sheetArrow.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        }
+      }
+
+      sheetHeader.addEventListener('click', toggleSheet);
+
+      sheetHandleBar.addEventListener('pointerdown', (e) => {
+        startY = e.clientY;
+        isDragging = true;
+        sheetHandleBar.setPointerCapture(e.pointerId);
+      });
+
+      sheetHandleBar.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const deltaY = e.clientY - startY;
+        if (deltaY < -40) {
+          bottomSheet.classList.add('expanded');
+          sheetArrow.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        } else if (deltaY > 40) {
+          bottomSheet.classList.remove('expanded');
+          sheetArrow.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        }
+      });
+
+      sheetHandleBar.addEventListener('pointerup', () => { isDragging = false; });
+      sheetHandleBar.addEventListener('pointercancel', () => { isDragging = false; });
+    }
+
     function selectPreset(presetKey) {
-      let wasZeroResult = (getFilteredPlaces().length === 0);
+      let wasZeroResult = (getGroupedPlaces().full.length === 0);
 
       if (currentPreset === presetKey) {
         currentPreset = null;
@@ -1429,7 +1463,7 @@
       }
 
       if (wasZeroResult) {
-        const nowCount = getFilteredPlaces().length;
+        const nowCount = getGroupedPlaces().full.length;
         if (nowCount > 0) {
           logData.zeroResultRecoveryAction = "reset_clicked";
         }
@@ -1446,7 +1480,7 @@
     }
 
     function toggleIndividualTag(tagKey) {
-      const wasZeroResult = (getFilteredPlaces().length === 0);
+      const wasZeroResult = (getGroupedPlaces().full.length === 0);
 
       activeFilters[tagKey] = !activeFilters[tagKey];
 
@@ -1457,7 +1491,7 @@
       });
 
       if (wasZeroResult) {
-        const nowCount = getFilteredPlaces().length;
+        const nowCount = getGroupedPlaces().full.length;
         if (nowCount > 0) {
           logData.zeroResultRecoveryAction = "relaxed_filter";
         }
@@ -1482,24 +1516,49 @@
       updateDashboard();
     }
 
-    function getFilteredPlaces() {
-      const activeTagKeys = Object.keys(activeFilters).filter(k => activeFilters[k]);
+    // 완전 일치(full) vs 부분 일치(partial) 계산
+    function getGroupedPlaces() {
+      const activeKeys = Object.keys(activeFilters).filter(k => activeFilters[k]);
 
-      return placesData.filter(place => {
-        return activeTagKeys.every(tag => place.parsed_options[tag] === true);
+      if (activeKeys.length === 0) {
+        return { full: placesData, partial: [] };
+      }
+
+      const full = [];
+      const partial = [];
+
+      placesData.forEach(place => {
+        let matchCount = 0;
+        activeKeys.forEach(tag => {
+          if (place.parsed_options[tag] === true) matchCount++;
+        });
+
+        if (matchCount === activeKeys.length) {
+          full.push(place);
+        } else if (matchCount > 0) {
+          partial.push({ place, matchCount });
+        }
       });
+
+      // 부분 일치는 많이 일치한 순서대로 정렬
+      partial.sort((a, b) => b.matchCount - a.matchCount);
+
+      return {
+        full,
+        partial: partial.map(item => item.place)
+      };
     }
 
     function updateDashboard() {
-      const filtered = getFilteredPlaces();
+      const { full, partial } = getGroupedPlaces();
 
-      if (filtered.length === 0) {
+      if (full.length === 0) {
         logData.zeroResultTriggered = true;
       }
 
       updateUIFilters();
-      updateMapMarkers(filtered);
-      updatePlacesList(filtered);
+      updateMapMarkers(full, partial);
+      updatePlacesList(full, partial);
     }
 
     function updateUIFilters() {
@@ -1523,11 +1582,14 @@
       });
     }
 
-    function updateMapMarkers(filteredPlaces) {
+    function updateMapMarkers(fullPlaces, partialPlaces) {
       markers.forEach(m => map.removeLayer(m));
       markers = [];
 
-      filteredPlaces.forEach((place) => {
+      const activeKeys = Object.keys(activeFilters).filter(k => activeFilters[k]);
+
+      // 1. 완전 일치 마커 렌더링 (그린)
+      fullPlaces.forEach(place => {
         const customIcon = L.divIcon({
           className: 'custom-marker',
           html: `<div class="marker-bubble">${place.name}</div>`,
@@ -1536,63 +1598,73 @@
         });
 
         const marker = L.marker([place.latitude, place.longitude], { icon: customIcon }).addTo(map);
-
         marker.on('click', () => {
-          markers.forEach(m => {
-            const el = m.getElement();
-            if (el) el.classList.remove('selected-pin');
-          });
-          const currentEl = marker.getElement();
-          if (currentEl) currentEl.classList.add('selected-pin');
-
-          const bottomSheet = document.getElementById('bottom-sheet');
-          if (bottomSheet) {
-            bottomSheet.classList.add('expanded');
-          }
-
+          highlightSelectedPin(marker);
+          document.getElementById('bottom-sheet').classList.add('expanded');
           focusPlaceInList(place.name);
         });
-
         marker.placeName = place.name;
         markers.push(marker);
       });
 
-      if (filteredPlaces.length > 0) {
+      // 2. 부분 일치 마커 렌더링 (필터가 켜져 있을 때만 코랄색 핀으로 서브 노출)
+      if (activeKeys.length > 0) {
+        partialPlaces.forEach(place => {
+          const customIcon = L.divIcon({
+            className: 'custom-marker partial-pin',
+            html: `<div class="marker-bubble"><small style="font-size:9px; color:#ef6255; margin-right:3px;">●</small>${place.name}</div>`,
+            iconSize: null,
+            iconAnchor: [30, 30]
+          });
+
+          const marker = L.marker([place.latitude, place.longitude], { icon: customIcon }).addTo(map);
+          marker.on('click', () => {
+            highlightSelectedPin(marker);
+            document.getElementById('bottom-sheet').classList.add('expanded');
+            focusPlaceInList(place.name);
+          });
+          marker.placeName = place.name;
+          markers.push(marker);
+        });
+      }
+
+      if (fullPlaces.length > 0 || partialPlaces.length > 0) {
         const group = new L.featureGroup(markers);
         map.fitBounds(group.getBounds().pad(0.15));
       }
     }
 
-    function updatePlacesList(filteredPlaces) {
-      matchCountEl.textContent = filteredPlaces.length;
-      placesListContainer.innerHTML = '';
+    function highlightSelectedPin(targetMarker) {
+      markers.forEach(m => {
+        const el = m.getElement();
+        if (el) el.classList.remove('selected-pin');
+      });
+      const currentEl = targetMarker.getElement();
+      if (currentEl) currentEl.classList.add('selected-pin');
+    }
 
-      if (filteredPlaces.length === 0) {
-        const emptyDiv = document.createElement('div');
-        emptyDiv.className = 'empty-result-container';
-        emptyDiv.innerHTML = `
-          <div class="empty-icon"><i class="fa-regular fa-face-frown"></i></div>
-          <div class="empty-message">조건에 맞는 곳이 없어요.<br>조건을 완화해 보세요.</div>
-          <button class="reset-btn" onclick="resetToPresetDefaults()">기본 조건으로 초기화</button>
-        `;
-        placesListContainer.appendChild(emptyDiv);
-        return;
-      }
+    function createPlaceCardHTML(place, isPartial) {
+      const activeKeys = Object.keys(activeFilters).filter(k => activeFilters[k]);
+      let badgesHtml = '';
 
-      filteredPlaces.forEach(place => {
-        const card = document.createElement('div');
-        card.className = 'place-card';
-        card.id = `place-card-${place.name.replace(/\s+/g, '-')}`;
+      Object.keys(place.parsed_options).forEach(key => {
+        if (place.parsed_options[key] === true) {
+          const isFilterOn = activeFilters[key] === true;
+          badgesHtml += `<span class="tag-badge ${isFilterOn ? 'matched' : ''}">#${tagMeta[key]}</span> `;
+        }
+      });
 
-        let badgesHtml = '';
-        Object.keys(place.parsed_options).forEach(key => {
-          if (place.parsed_options[key] === true) {
-            const isFilterOn = activeFilters[key] === true;
-            badgesHtml += `<span class="tag-badge ${isFilterOn ? 'matched' : ''}">#${tagMeta[key]}</span> `;
+      // 부분 일치일 경우 미충족 태그 표시
+      if (isPartial) {
+        activeKeys.forEach(tag => {
+          if (!place.parsed_options[tag]) {
+            badgesHtml += `<span class="tag-badge missing">#${tagMeta[tag]} 제외</span> `;
           }
         });
+      }
 
-        card.innerHTML = `
+      return `
+        <div class="place-card" id="place-card-${place.name.replace(/\s+/g, '-')}" onclick="openDetailModalByName('${place.name.replace(/'/g, "\\'")}')">
           <div class="place-img-wrapper">
             <img class="place-img" src="${place.image_url}" alt="${place.name}">
           </div>
@@ -1613,14 +1685,50 @@
               ${badgesHtml}
             </div>
           </div>
-        `;
+        </div>
+      `;
+    }
 
-        card.addEventListener('click', () => {
-          openDetailModal(place);
+    function updatePlacesList(fullPlaces, partialPlaces) {
+      matchCountEl.textContent = fullPlaces.length;
+      placesListContainer.innerHTML = '';
+      const activeKeys = Object.keys(activeFilters).filter(k => activeFilters[k]);
+
+      // 1. 조건을 모두 만족하는 그룹
+      if (fullPlaces.length > 0) {
+        if (activeKeys.length > 0) {
+          const groupHeader = document.createElement('div');
+          groupHeader.className = 'result-group-title';
+          groupHeader.innerHTML = `조건을 모두 만족해요 <span>${fullPlaces.length}곳</span>`;
+          placesListContainer.appendChild(groupHeader);
+        }
+
+        fullPlaces.forEach(place => {
+          placesListContainer.insertAdjacentHTML('beforeend', createPlaceCardHTML(place, false));
         });
+      } else {
+        // 완전 일치 0건 시 dead-end 방지 안내
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'empty-result-container';
+        emptyDiv.innerHTML = `
+          <div class="empty-icon"><i class="fa-regular fa-face-frown"></i></div>
+          <div class="empty-message">선택하신 모든 조건에 딱 맞는 곳이 없습니다.<br>조건을 완화하거나 아래 대체 장소를 확인해보세요.</div>
+          <button class="reset-btn" onclick="resetToPresetDefaults()">기본 조건으로 초기화</button>
+        `;
+        placesListContainer.appendChild(emptyDiv);
+      }
 
-        placesListContainer.appendChild(card);
-      });
+      // 2. 일부 조건 만족 그룹 (태그가 켜져 있고 대안 매장이 있을 때)
+      if (activeKeys.length > 0 && partialPlaces.length > 0) {
+        const partialGroupHeader = document.createElement('div');
+        partialGroupHeader.className = 'result-group-title partial';
+        partialGroupHeader.innerHTML = `일부 조건이 맞아요 <span>${partialPlaces.length}곳</span>`;
+        placesListContainer.appendChild(partialGroupHeader);
+
+        partialPlaces.forEach(place => {
+          placesListContainer.insertAdjacentHTML('beforeend', createPlaceCardHTML(place, true));
+        });
+      }
     }
 
     function focusPlaceInList(placeName) {
@@ -1629,9 +1737,12 @@
 
       if (cardEl) {
         cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        document.querySelectorAll('.place-card').forEach(c => c.classList.remove('highlighted'));
-        cardEl.classList.add('highlighted');
       }
+    }
+
+    function openDetailModalByName(placeName) {
+      const place = placesData.find(p => p.name === placeName);
+      if (place) openDetailModal(place);
     }
 
     function openDetailModal(place) {
