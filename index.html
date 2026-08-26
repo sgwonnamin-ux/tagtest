@@ -319,7 +319,7 @@
     }
     .custom-marker.selected-pin .marker-bubble::after { border-color: #0f172a transparent; }
 
-    /* 리스트 바텀시트: 최대 높이를 52%로 제한하여 상단 지도가 항상 노출됨 */
+    /* 리스트 바텀시트: 최대 52%로 지도를 가리지 않음 */
     .bottom-sheet {
       position: absolute;
       bottom: 0;
@@ -526,7 +526,7 @@
       cursor: pointer;
     }
 
-    /* 하프(Half) 상세 모달: 지도를 가리지 않고 하단 48% 높이에 노출 */
+    /* 하프(Half) 상세 모달: 사진 썸네일(옵션 A)을 포함하여 48% 높이에 렌더링 */
     .detail-half-sheet {
       position: absolute;
       bottom: 0;
@@ -555,61 +555,108 @@
     .detail-half-content {
       flex: 1;
       overflow-y: auto;
-      padding: 0 16px 12px 16px;
+      padding: 0 16px 10px 16px;
+    }
+
+    /* 옵션 A: 상세창 상단 썸네일 + 기본 정보 레이아웃 */
+    .detail-header-card {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .detail-thumb-wrapper {
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      background-color: #eef1f6;
+    }
+
+    .detail-thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .detail-main-meta {
+      flex: 1;
+      min-width: 0;
     }
 
     .detail-title-row {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-top: 2px;
+      gap: 4px;
     }
 
-    .detail-name { font-size: 17px; font-weight: 800; color: var(--text-main); }
-    .detail-category { font-size: 12px; color: var(--text-sub); }
+    .detail-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .detail-category { font-size: 11px; color: var(--text-sub); }
 
     .detail-score-box {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       font-size: 12px;
       margin-top: 2px;
+    }
+
+    .detail-menu-highlight {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--naver-green-dark);
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .detail-review-highlight {
       background: #f8fafc;
       border-left: 3px solid var(--naver-green);
-      padding: 7px 10px;
+      padding: 6px 10px;
       border-radius: 0 6px 6px 0;
-      font-size: 12px;
+      font-size: 11.5px;
       color: #334155;
-      line-height: 1.4;
-      margin: 8px 0;
+      line-height: 1.35;
+      margin: 6px 0 8px 0;
+      border: 1px solid #edf2f7;
+      border-left: 3px solid var(--naver-green);
     }
 
     .detail-info-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      font-size: 12px;
+      gap: 5px;
+      font-size: 11.5px;
       color: #3f3f46;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
-    .detail-info-item { display: flex; align-items: center; gap: 8px; }
+    .detail-info-item { display: flex; align-items: center; gap: 6px; }
     .detail-info-item i { width: 14px; color: var(--text-muted); }
 
     .detail-options-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
-      margin-top: 6px;
+      gap: 5px;
+      margin-top: 5px;
     }
 
     .detail-option-pill {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 8px;
+      gap: 5px;
+      padding: 5px 8px;
       border-radius: 6px;
       font-size: 11px;
       background-color: var(--bg-gray);
@@ -622,7 +669,7 @@
     }
 
     .detail-footer-btn-container {
-      padding: 10px 16px 14px 16px;
+      padding: 8px 16px 12px 16px;
       border-top: 1px solid var(--border-light);
       background-color: #fff;
       display: flex;
@@ -631,7 +678,7 @@
 
     .select-place-btn {
       flex: 1;
-      height: 44px;
+      height: 42px;
       border-radius: 8px;
       background-color: var(--naver-green);
       color: #fff;
@@ -644,7 +691,7 @@
 
     .cancel-place-btn {
       width: 76px;
-      height: 44px;
+      height: 42px;
       border-radius: 8px;
       background-color: #f4f4f5;
       color: #4e4e55;
@@ -760,7 +807,7 @@
         <span id="view-toggle-text">지도 보기</span>
       </button>
 
-      <!-- 검색 리스트 바텀시트 (최대 높이 52%로 제한하여 상단 지도 항상 노출) -->
+      <!-- 검색 리스트 바텀시트 (52% 높이로 지도가 항상 노출) -->
       <div class="bottom-sheet" id="bottom-sheet">
         <div class="sheet-handle-bar" id="sheet-handle">
           <div class="sheet-handle"></div>
@@ -772,39 +819,46 @@
         <div class="places-list" id="places-list-container"></div>
       </div>
 
-      <!-- 하프 상세 정보 바텀시트 (지도를 보면서 위치와 상세정보 동시 확인) -->
+      <!-- 옵션 A 적용: 사진 썸네일이 포함된 하프 상세 바텀시트 -->
       <div class="detail-half-sheet" id="detail-half-sheet">
         <div class="sheet-handle-bar" id="detail-sheet-handle">
           <div class="sheet-handle"></div>
         </div>
         <div class="detail-half-content">
-          <div class="detail-title-row">
-            <span class="detail-name" id="detail-name">식당 이름</span>
-            <span class="detail-category" id="detail-category">일식</span>
+          <!-- 사진 + 메인 정보 카드 -->
+          <div class="detail-header-card">
+            <div class="detail-thumb-wrapper">
+              <img class="detail-thumb-img" id="detail-img" src="" alt="식당 사진">
+            </div>
+            <div class="detail-main-meta">
+              <div class="detail-title-row">
+                <span class="detail-name" id="detail-name">식당 이름</span>
+                <span class="detail-category" id="detail-category">일식</span>
+              </div>
+              <div class="detail-score-box">
+                <span style="color:#f59e0b; font-weight:700;"><i class="fa-solid fa-star"></i> <span id="detail-rating">4.8</span></span>
+                <span style="color:#94a3b8;">·</span>
+                <span style="color:#64748b;" id="detail-review-count">리뷰 1,200</span>
+              </div>
+              <div class="detail-menu-highlight" id="detail-menu">🍴 대표메뉴</div>
+            </div>
           </div>
 
-          <div class="detail-score-box">
-            <span style="color:#f59e0b; font-weight:700;"><i class="fa-solid fa-star"></i> <span id="detail-rating">4.8</span></span>
-            <span style="color:#94a3b8;">·</span>
-            <span style="color:#64748b;" id="detail-review-count">리뷰 1,200</span>
-          </div>
-
+          <!-- 한 줄 리뷰 -->
           <div class="detail-review-highlight" id="detail-highlight-review">
             "방문자 대표 리뷰가 노출됩니다."
           </div>
 
+          <!-- 위치 정보 -->
           <div class="detail-info-list">
-            <div class="detail-info-item">
-              <i class="fa-solid fa-utensils"></i>
-              <span id="detail-menu" style="font-weight:700; color:#03C75A;">대표메뉴</span>
-            </div>
             <div class="detail-info-item">
               <i class="fa-solid fa-location-dot"></i>
               <span id="detail-address">주소 정보</span>
             </div>
           </div>
 
-          <div style="font-size:12px; font-weight:700; color:var(--text-main); margin-top:8px;">편의 조건</div>
+          <!-- 편의 조건 그리드 -->
+          <div style="font-size:11px; font-weight:700; color:var(--text-main); margin-top:4px;">편의 조건</div>
           <div class="detail-options-grid" id="detail-options-grid"></div>
         </div>
 
@@ -1220,6 +1274,7 @@
 
     // 하프 모달 참조
     const detailHalfSheet = document.getElementById('detail-half-sheet');
+    const detailImg = document.getElementById('detail-img');
     const detailName = document.getElementById('detail-name');
     const detailCategory = document.getElementById('detail-category');
     const detailRating = document.getElementById('detail-rating');
@@ -1314,7 +1369,7 @@
       }
     }
 
-    // 바텀시트 및 상세시트 제스처
+    // 제스처 지원
     function setupSheetGestures() {
       const sheetHandleBar = document.getElementById('sheet-handle');
       const sheetHeader = document.getElementById('sheet-header');
@@ -1343,7 +1398,6 @@
       sheetHandleBar.addEventListener('pointerup', () => { isDragging = false; });
       sheetHandleBar.addEventListener('pointercancel', () => { isDragging = false; });
 
-      // 하프 상세창 아래로 쓸어내려 닫기
       let detailStartY = 0;
       let isDetailDragging = false;
       detailHandleBar.addEventListener('pointerdown', (e) => {
@@ -1646,7 +1700,6 @@
       }
     }
 
-    // 리스트 카드 클릭 시: 즉시 줌인 + 하프 바텀시트로 전환
     function selectPlaceFromList(placeName) {
       const place = placesData.find(p => p.name === placeName);
       if (!place) return;
@@ -1655,28 +1708,27 @@
       focusAndOpenPlace(place, targetMarker);
     }
 
-    // 지도 줌인 & 하프 상세 모달 열기
+    // 지도 줌인 & 하프 상세 모달(옵션 A 썸네일 탑재) 열기
     function focusAndOpenPlace(place, marker) {
       currentPlaceInDetail = place;
 
-      // 리스트 바텀시트 닫고 플로팅 버튼 숨김
       bottomSheet.classList.remove('expanded');
       viewToggleFab.style.display = 'none';
 
-      // 핀 강조 및 지도를 해당 위치로 부드럽게 줌인 이동
       if (marker) highlightSelectedPin(marker);
       map.flyTo([place.latitude, place.longitude], 17, {
         animate: true,
         duration: 0.6
       });
 
-      // 하프 상세 정보 채우기
+      // 상세 데이터 및 썸네일 사진 바인딩
+      detailImg.src = place.image_url;
       detailName.textContent = place.name;
       detailCategory.textContent = place.category;
       detailRating.textContent = place.rating;
       detailReviewCount.textContent = `리뷰 ${place.review_count.toLocaleString()}개`;
       detailHighlightReview.textContent = `"${place.highlight_review}"`;
-      detailMenu.textContent = place.signature_menu;
+      detailMenu.textContent = `🍴 ${place.signature_menu}`;
       detailAddress.textContent = place.address;
 
       detailOptionsGrid.innerHTML = '';
@@ -1694,7 +1746,6 @@
       logData.detailViewCount += 1;
       detailOpenTime = Date.now();
 
-      // 하프 시트 오픈
       detailHalfSheet.classList.add('open');
     }
 
